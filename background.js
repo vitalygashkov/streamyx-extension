@@ -1,8 +1,4 @@
-const tabIDs = {};
-const textDecoder = new TextDecoder();
-
-const executablePrefix = `npm start --`;
-
+const EXECUTABLE_PATH = 'streamyx.exe';
 const SERVERS_WITH_DISPOSABLE_TOKENS = [
   's95951.cdn.ngenix.net',
   'api2.hbogoasia.com/onwards-widevine',
@@ -11,6 +7,9 @@ const SERVERS_WITH_DISPOSABLE_TOKENS = [
   'wvls/contentlicenseservice/v1/licenses',
   'license.vdocipher.com/auth',
 ];
+
+const tabIDs = {};
+const textDecoder = new TextDecoder();
 
 function requestToClipboard(tabId) {
   chrome.tabs.get(tabId, (details) => {
@@ -32,7 +31,7 @@ function requestToClipboard(tabId) {
       console.log(ip_resposnse);
 
       var i = 0;
-      let command = `${executablePrefix} `;
+      let command = `${EXECUTABLE_PATH} `;
       command += `'${lic_url}' \\`;
       for (; i < lic_headers.length; ++i)
         command += `\n  -H '${lic_headers[i].name.toLowerCase()}: ${lic_headers[i].value}' \\`;
