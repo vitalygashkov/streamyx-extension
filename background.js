@@ -54,7 +54,7 @@ function requestToClipboard(tabId) {
 
       chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000', tabId: details.id });
       chrome.browserAction.setBadgeText({ text: '📋', tabId: details.id });
-      alert(`License request generated. Streamyx command has been copied to your clipboard!`);
+      alert(`License request intercepted. Streamyx command has been copied to your clipboard!`);
     };
     get_ip.send();
   });
