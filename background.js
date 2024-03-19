@@ -1,4 +1,5 @@
-const EXECUTABLE_PATH = 'streamyx.exe';
+const CMD_EXE_PATH = ''; // For example: streamyx.exe
+
 const SERVERS_WITH_DISPOSABLE_TOKENS = [
   's95951.cdn.ngenix.net',
   'api2.hbogoasia.com/onwards-widevine',
@@ -31,30 +32,45 @@ function requestToClipboard(tabId) {
       console.log(ip_resposnse);
 
       var i = 0;
-      let command = `${EXECUTABLE_PATH} `;
+      let command = `${CMD_EXE_PATH} `;
       command += `'${lic_url}' \\`;
       for (; i < lic_headers.length; ++i)
         command += `\n  -H '${lic_headers[i].name.toLowerCase()}: ${lic_headers[i].value}' \\`;
       if (!ip_resposnse.includes('403 Forbidden')) command += `\n  -H 'x-forwarded-for: ${ip_resposnse}' \\`;
       command += `\n  --pssh ${widevine_pssh}`;
 
-      const final = command;
-      console.log(final);
+      const notificationId = `${widevine_pssh}`;
+      chrome.notifications.create(notificationId, {
+        type: 'basic',
+        title: 'License request intercepted',
+        message: `${lic_url}`,
+        iconUrl: 'icon128.png',
+        buttons: [{ title: 'Copy Streamyx command' }, { title: 'Copy PSSH' }, { title: 'Copy URL' }],
+      });
 
-      const copyText = document.createElement('textarea');
-      copyText.style.position = 'absolute';
-      copyText.style.left = '-5454px';
-      copyText.style.top = '-5454px';
-      copyText.style.opacity = 0;
-      document.body.appendChild(copyText);
-      copyText.value = final;
-      copyText.select();
-      document.execCommand('copy');
-      document.body.removeChild(copyText);
-
-      chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000', tabId: details.id });
-      chrome.browserAction.setBadgeText({ text: '📋', tabId: details.id });
-      alert(`License request intercepted. Streamyx command has been copied to your clipboard!`);
+      chrome.notifications.onButtonClicked.addListener(function (id, buttonIndex) {
+        if (id === notificationId) {
+          let dataToCopy = '';
+          if (buttonIndex === 0) {
+            dataToCopy = command;
+          } else if (buttonIndex === 1) {
+            dataToCopy = widevine_pssh;
+          } else if (buttonIndex === 2) {
+            dataToCopy = lic_url;
+          }
+          // Copy to clipboard
+          const copyText = document.createElement('textarea');
+          copyText.style.position = 'absolute';
+          copyText.style.left = '-5454px';
+          copyText.style.top = '-5454px';
+          copyText.style.opacity = 0;
+          document.body.appendChild(copyText);
+          copyText.value = dataToCopy;
+          copyText.select();
+          document.execCommand('copy');
+          document.body.removeChild(copyText);
+        }
+      });
     };
     get_ip.send();
   });
