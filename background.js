@@ -36,7 +36,7 @@ function requestToClipboard(tabId) {
       command += `'${lic_url}' \\`;
       for (; i < lic_headers.length; ++i)
         command += `\n  -H '${lic_headers[i].name.toLowerCase()}: ${lic_headers[i].value}' \\`;
-      command += `\n  -H 'x-forwarded-for: ${ip_resposnse}' \\`;
+      if (!ip_resposnse.includes('403 Forbidden')) command += `\n  -H 'x-forwarded-for: ${ip_resposnse}' \\`;
       command += `\n  --pssh ${widevine_pssh}`;
 
       const final = command;
