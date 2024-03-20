@@ -33,11 +33,11 @@ function requestToClipboard(tabId) {
 
       var i = 0;
       let command = `${CMD_EXE_PATH} `;
-      command += `'${lic_url}' \\`;
+      command += `"${lic_url}"`;
       for (; i < lic_headers.length; ++i)
-        command += `\n  -H '${lic_headers[i].name.toLowerCase()}: ${lic_headers[i].value}' \\`;
-      if (!ip_resposnse.includes('403 Forbidden')) command += `\n  -H 'x-forwarded-for: ${ip_resposnse}' \\`;
-      command += `\n  --pssh ${widevine_pssh}`;
+        command += ` -H "${lic_headers[i].name.toLowerCase()}: ${lic_headers[i].value.replaceAll('"', '\\"')}"`;
+      if (!ip_resposnse.includes('403 Forbidden')) command += ` -H "x-forwarded-for: ${ip_resposnse}"`;
+      command += ` --pssh ${widevine_pssh}`;
 
       const notificationId = `${widevine_pssh}`;
       chrome.notifications.create(notificationId, {
