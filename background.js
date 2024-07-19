@@ -1,7 +1,7 @@
 const CMD_EXE_PATH = ''; // For example: streamyx.exe
 
 const SERVERS_WITH_DISPOSABLE_TOKENS = [
-  's95951.cdn.ngenix.net',
+  's95951.cdn.ngenix.net', // Wink
   'api2.hbogoasia.com/onwards-widevine',
   'prepladder.com',
   'scvm1sc0.anycast.nagra.com',
@@ -34,10 +34,15 @@ function requestToClipboard(tabId) {
       var i = 0;
       let command = `${CMD_EXE_PATH} `;
       command += `"${lic_url}"`;
-      for (; i < lic_headers.length; ++i)
-        command += ` -H "${lic_headers[i].name.toLowerCase()}: ${lic_headers[i].value.replaceAll(`"`, `'`)}"`;
+      for (; i < lic_headers.length; ++i) {
+        const { name, value } = lic_headers[i];
+        if (name.toLowerCase() === 'origin') continue;
+        command += ` -H "${name.toLowerCase()}: ${value.replaceAll(`"`, `\\"`)}"`;
+      }
       if (!ip_resposnse.includes('403 Forbidden')) command += ` -H "x-forwarded-for: ${ip_resposnse}"`;
       command += ` --pssh ${widevine_pssh}`;
+      if (lic_data_json && lic_data_json.startsWith('{'))
+        command += ` --drm-template "${lic_data_json.replaceAll(`"`, `\\"`)}"`;
 
       const notificationId = `${widevine_pssh}`;
       chrome.notifications.create(notificationId, {
@@ -97,7 +102,10 @@ function getLicenseRequestData(details) {
           (details.url.includes('license') && decodedString.includes('token') && decodedString.length > 4000) ||
           decodedString.includes('8,1,18')
         ) {
-          tabIDs[details.tabId].license_data = decodedString;
+          const challengePart = decodedString.split('"CAES')[1]?.split('"')[0];
+          const challenge = 'CAES' + challengePart;
+          const licenseTemplate = decodedString.replace(challenge, '{{challenge}}');
+          tabIDs[details.tabId].license_data = challengePart ? licenseTemplate : decodedString;
           tabIDs[details.tabId].license_url = details.url;
           tabIDs[details.tabId].req_id = details.requestId;
         } else {
