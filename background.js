@@ -1,4 +1,4 @@
-const CMD_EXE_PATH = ''; // For example: streamyx.exe
+const CMD_EXE_PATH = ''; // For example: .\streamyx.exe
 
 const SERVERS_WITH_DISPOSABLE_TOKENS = [
   's95951.cdn.ngenix.net', // Wink
@@ -18,7 +18,8 @@ function requestToClipboard(tabId) {
     const lic_url = tabIDs[details.id].license_url;
     const lic_data_json = tabIDs[details.id].license_data;
     const widevine_pssh = tabIDs[details.id].pssh;
-    if (!lic_headers) return;
+    const kid = tabIDs[details.id].kid;
+    if (!widevine_pssh || !kid) return;
 
     // Fetching the user's ip for setting the header X-Forwarded-For.
     // This might help to bypass regional restrictions when performing the license request in some cases.
@@ -32,36 +33,62 @@ function requestToClipboard(tabId) {
       console.log(ip_resposnse);
 
       var i = 0;
+
       let command = `${CMD_EXE_PATH} `;
-      command += `'${lic_url}'`;
+
+      // Append Widevine license URL
+      command += `"${lic_url}"`;
+
+      // Append license request headers
       for (; i < lic_headers.length; ++i) {
         const { name, value } = lic_headers[i];
         if (name.toLowerCase() === 'origin') continue;
-        command += ` -H '${name.toLowerCase()}: ${value.replaceAll(`'`, `"`)}'`;
+        command += ` -H "${name.toLowerCase()}: ${value.replaceAll(`"`, `'`)}"`;
       }
-      if (!ip_resposnse.includes('403 Forbidden')) command += ` -H 'x-forwarded-for: ${ip_resposnse}'`;
-      command += ` --pssh '${widevine_pssh}'`;
-      if (lic_data_json && lic_data_json.startsWith('{')) command += ` --drm-template '${lic_data_json}'`;
+      if (!ip_resposnse.includes('403 Forbidden')) command += ` -H "x-forwarded-for: ${ip_resposnse}"`;
 
-      const notificationId = `${widevine_pssh}`;
+      // Append PSSH
+      command += ` --pssh "${widevine_pssh}"`;
+
+      // Append license data template
+      const commands = {
+        windowsPowerShell: command,
+        windowsCommandPrompt: command,
+        unix: command,
+      };
+      if (lic_data_json && lic_data_json.startsWith('{')) {
+        const windowsPowerShell = `'"${lic_data_json.replaceAll('"', '""')}"'`;
+        const windowsCommandPrompt = `"${lic_data_json.replaceAll('"', '""')}"`;
+        const unix = `"${lic_data_json.replaceAll(`"`, `\\"`)}"`;
+        const prefix = ' --drm-template ';
+
+        commands.windowsPowerShell += prefix + windowsPowerShell;
+        commands.windowsCommandPrompt += prefix + windowsCommandPrompt;
+        commands.unix += prefix + unix;
+      }
+
+      const notificationId = `${kid || widevine_pssh}`;
       chrome.notifications.create(notificationId, {
         type: 'basic',
-        title: 'License request intercepted',
-        message: `${lic_url}`,
+        title: `KID -> ${kid}`,
+        message: `Server: ${
+          new URL(lic_url).host
+        }\n\nCopy Streamyx command for your shell by clicking the button below`,
         iconUrl: 'icon128.png',
-        buttons: [{ title: 'Copy Streamyx command' }, { title: 'Copy PSSH' }, { title: 'Copy URL' }],
+        buttons: [{ title: 'WSL, Unix-like OS' }, { title: 'Windows PowerShell' }, { title: 'Windows Command Prompt' }],
       });
 
       chrome.notifications.onButtonClicked.addListener(function (id, buttonIndex) {
         if (id === notificationId) {
           let dataToCopy = '';
           if (buttonIndex === 0) {
-            dataToCopy = command;
+            dataToCopy = commands.unix;
           } else if (buttonIndex === 1) {
-            dataToCopy = widevine_pssh;
+            dataToCopy = commands.windowsPowerShell;
           } else if (buttonIndex === 2) {
-            dataToCopy = lic_url;
+            dataToCopy = commands.windowsCommandPrompt;
           }
+
           // Copy to clipboard
           const copyText = document.createElement('textarea');
           copyText.style.position = 'absolute';
@@ -165,7 +192,15 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (!request || !sender.tab) return;
-  tabIDs[sender.tab.id] = tabIDs[sender.tab.id] || {};
-  tabIDs[sender.tab.id] = { license_data: '', license_request: [], license_url: '', req_id: '', pssh: request };
-  console.log(`PSSH:- ${tabIDs[sender.tab.id].pssh}`);
+  console.log({ request, sender });
+  tabIDs[sender.tab.id] = tabIDs[sender.tab.id] || {
+    license_data: '',
+    license_request: [],
+    license_url: '',
+    req_id: '',
+  };
+  if (request.pssh) tabIDs[sender.tab.id].pssh = request.pssh;
+  if (request.kid) tabIDs[sender.tab.id].kid = request.kid;
+  console.log(`PSSH: ${tabIDs[sender.tab.id].pssh}`);
+  requestToClipboard(sender.tab.id);
 });

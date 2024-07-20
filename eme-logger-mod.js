@@ -17,7 +17,7 @@
     console.groupCollapsed(`PSSH: ${pssh}`);
     console.trace();
     console.groupEnd();
-    if (pssh) window.postMessage({ type: '38405bbb-36ef-454d-8b32-346f9564c978', log: pssh }, '*');
+    if (pssh) window.postMessage({ type: '38405bbb-36ef-454d-8b32-346f9564c978', log: { pssh } }, '*');
     return _target.apply(_this, _args);
   });
 
@@ -40,6 +40,7 @@
       const statuses = Array.from(_this.keyStatuses);
       for (const [kidBuffer, state] of statuses) {
         const kid = arrayBufferToHex(kidBuffer);
+        if (kid) window.postMessage({ type: '38405bbb-36ef-454d-8b32-346f9564c978', log: { kid } }, '*');
         console.log(`KID:STATE -> ${kid}:${state}`);
       }
     }, 3000);
