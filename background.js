@@ -40,7 +40,7 @@ function requestToClipboard(tabId) {
         command += ` -H '${name.toLowerCase()}: ${value.replaceAll(`'`, `"`)}'`;
       }
       if (!ip_resposnse.includes('403 Forbidden')) command += ` -H 'x-forwarded-for: ${ip_resposnse}'`;
-      command += ` --pssh ${widevine_pssh}`;
+      command += ` --pssh '${widevine_pssh}'`;
       if (lic_data_json && lic_data_json.startsWith('{')) command += ` --drm-template '${lic_data_json}'`;
 
       const notificationId = `${widevine_pssh}`;
