@@ -145,7 +145,7 @@ function getLicenseRequestHeaders(details) {
     tabIDs[details.tabId].license_url === details.url &&
     tabIDs[details.tabId].req_id === details.requestId
   ) {
-    console.log(details.url);
+    if (!tabIDs[details.tabId].license_request) tabIDs[details.tabId].license_request = [];
     tabIDs[details.tabId].license_request.push({ license_headers: details.requestHeaders });
     requestToClipboard(details.tabId);
 
