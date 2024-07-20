@@ -1,5 +1,3 @@
-const CMD_EXE_PATH = ''; // For example: .\streamyx.exe
-
 const SERVERS_WITH_DISPOSABLE_TOKENS = [
   's95951.cdn.ngenix.net', // Wink
   'api2.hbogoasia.com/onwards-widevine',
@@ -12,7 +10,14 @@ const SERVERS_WITH_DISPOSABLE_TOKENS = [
 const tabIDs = {};
 const textDecoder = new TextDecoder();
 
+let os = null;
+chrome.runtime.getPlatformInfo(function (info) {
+  os = info.os;
+});
+
 function requestToClipboard(tabId) {
+  const STREAMYX_PATH = os === 'win' ? '.\\streamyx.exe' : './streamyx';
+
   chrome.tabs.get(tabId, (details) => {
     const lic_headers = tabIDs[details.id].license_request[0]?.license_headers;
     const lic_url = tabIDs[details.id].license_url;
@@ -34,7 +39,7 @@ function requestToClipboard(tabId) {
 
       var i = 0;
 
-      let command = `${CMD_EXE_PATH} `;
+      let command = `${STREAMYX_PATH} `;
 
       // Append Widevine license URL
       command += `"${lic_url}"`;
@@ -68,6 +73,8 @@ function requestToClipboard(tabId) {
       }
 
       const notificationId = `${kid || widevine_pssh}`;
+      const actions =
+        os === 'win' ? [{ title: 'PowerShell' }, { title: 'Command Prompt' }] : [{ title: 'Bash, zsh, etc.' }];
       chrome.notifications.create(notificationId, {
         type: 'basic',
         title: `KID -> ${kid}`,
@@ -75,18 +82,17 @@ function requestToClipboard(tabId) {
           new URL(lic_url).host
         }\n\nCopy Streamyx command for your shell by clicking the button below`,
         iconUrl: 'icon128.png',
-        buttons: [{ title: 'WSL, Unix-like OS' }, { title: 'Windows PowerShell' }, { title: 'Windows Command Prompt' }],
+        buttons: actions,
       });
 
       chrome.notifications.onButtonClicked.addListener(function (id, buttonIndex) {
         if (id === notificationId) {
           let dataToCopy = '';
-          if (buttonIndex === 0) {
-            dataToCopy = commands.unix;
-          } else if (buttonIndex === 1) {
-            dataToCopy = commands.windowsPowerShell;
-          } else if (buttonIndex === 2) {
-            dataToCopy = commands.windowsCommandPrompt;
+          if (os === 'win') {
+            if (buttonIndex === 0) dataToCopy = commands.windowsPowerShell;
+            else if (buttonIndex === 1) dataToCopy = commands.windowsCommandPrompt;
+          } else {
+            if (buttonIndex === 0) dataToCopy = commands.unix;
           }
 
           // Copy to clipboard
