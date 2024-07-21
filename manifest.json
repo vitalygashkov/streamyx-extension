@@ -1,5 +1,6 @@
 {
   "name": "Streamyx",
+  "description": "Intercept DRM requests, view logs from EME session and copy ready commands for Streamyx CLI",
   "version": "0.2.0",
   "manifest_version": 2,
   "background": {
