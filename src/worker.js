@@ -74,13 +74,13 @@ function requestToClipboard(tabId) {
 
       const notificationId = `${kid || widevine_pssh}`;
       const actions =
-        os === 'win' ? [{ title: 'PowerShell' }, { title: 'Command Prompt' }] : [{ title: 'Bash, zsh, etc.' }];
+        os === 'win'
+          ? [{ title: 'Copy command for PowerShell' }, { title: 'Copy command for Command Prompt' }]
+          : [{ title: 'Copy command' }];
       chrome.notifications.create(notificationId, {
         type: 'basic',
-        title: `KID -> ${kid}`,
-        message: `Server: ${
-          new URL(lic_url).host
-        }\n\nCopy Streamyx command for your shell by clicking the button below`,
+        title: `Streamyx: ${new URL(lic_url).host}`,
+        message: `Key ID: ${kid}`,
         iconUrl: 'icon128.png',
         buttons: actions,
       });
@@ -198,7 +198,6 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (!request || !sender.tab) return;
-  console.log({ request, sender });
   tabIDs[sender.tab.id] = tabIDs[sender.tab.id] || {
     license_data: '',
     license_request: [],
@@ -207,6 +206,5 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   };
   if (request.pssh) tabIDs[sender.tab.id].pssh = request.pssh;
   if (request.kid) tabIDs[sender.tab.id].kid = request.kid;
-  console.log(`PSSH: ${tabIDs[sender.tab.id].pssh}`);
   requestToClipboard(sender.tab.id);
 });

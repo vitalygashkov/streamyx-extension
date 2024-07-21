@@ -1,14 +1,14 @@
 {
   "name": "Streamyx",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "manifest_version": 2,
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["src/worker.js"]
   },
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["content-script.js"],
+      "js": ["src/content.js"],
       "all_frames": true,
       "run_at": "document_start"
     }
@@ -28,5 +28,5 @@
     "webRequestBlocking",
     "notifications"
   ],
-  "web_accessible_resources": ["eme-logger-mod.js"]
+  "web_accessible_resources": ["src/drm.js"]
 }
