@@ -30,6 +30,15 @@
     _this.initDataType = initDataType;
     _this.initData = pssh;
     if (pssh) window.postMessage({ type: POST_MESSAGE_TYPE, log: { pssh } }, '*');
+    _this.addEventListener('message', (event) => {
+      console.groupCollapsed(`[STREAMYX] Session ${_this.sessionId} has new "${event.messageType}" message`);
+      console.log(`Initialization Data Type: ${_this.initDataType}`);
+      console.log(`Initialization Data (PSSH): ${_this.initData}`);
+      if (_this.keyIds) console.log(`Key IDs: ${_this.keyIds}`);
+      console.log(`Message Type: ${event.messageType}`);
+      console.log(`Message: ${b64.encode(event.message)}`);
+      console.groupEnd();
+    });
     return _target.apply(_this, _args);
   });
 
