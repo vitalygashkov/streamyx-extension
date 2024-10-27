@@ -1,6 +1,6 @@
 {
   "name": "azot",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Research & pentesting toolkit for Google's Widevine DRM",
   "type": "module",
   "files": [
@@ -24,7 +24,7 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "compile": "tsc --noEmit",
-    "postinstall": "wxt prepare",
+    "postinstall": "node ./scripts/postinstall.js",
     "test": "vitest"
   },
   "repository": {
