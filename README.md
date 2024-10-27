@@ -1,5 +1,8 @@
 # azot
 
+[![npm version](https://img.shields.io/npm/v/azot?style=flat&color=black)](https://www.npmjs.com/package/azot)
+![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/vitalygashkov/azot/latest/total?style=flat&color=black)
+[![npm downloads](https://img.shields.io/npm/dt/azot?style=flat&color=black)](https://www.npmjs.com/package/azot)
 
 Azot (Russian word for "nitrogen", pronounced `/azо́t/`) is a set of tools (JavaScript library, command-line utility and browser extension) for diagnosing, researching, and pentesting [Google's](https://about.google/) [Widevine](https://www.widevine.com/about) [DRM](https://www.urbandictionary.com/define.php?term=DRM).
 
