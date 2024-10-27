@@ -1,8 +1,8 @@
 {
-  "name": "azot-example",
+  "name": "azot-eme-cjs",
   "version": "1.0.0",
   "private": true,
-  "main": "eme.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
