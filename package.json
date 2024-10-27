@@ -1,6 +1,6 @@
 {
   "name": "azot",
-  "version": "0.4.4",
+  "version": "0.4.6",
   "description": "Research & pentesting toolkit for Google's Widevine DRM",
   "type": "module",
   "files": [
@@ -11,6 +11,7 @@
     "azot": "dist/cli.js"
   },
   "scripts": {
+    "prepublishOnly": "npm run build:lib",
     "dev": "wxt",
     "dev:firefox": "wxt -b firefox",
     "build": "npm run build:lib && npm run build:chrome",
