@@ -1,0 +1,19 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "paths": {
+      "@": ["./extension"],
+      "@/*": ["./extension/*"],
+      "~": ["./extension"],
+      "~/*": ["./extension/*"],
+      "@@": ["."],
+      "@@/*": ["./*"],
+      "~~": ["."],
+      "~~/*": ["./*"],
+      "@azot/lib": ["./lib"],
+      "@azot/lib/*": ["./lib/*"]
+    }
+  }
+}
