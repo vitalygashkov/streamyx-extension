@@ -69,5 +69,6 @@ const fetchDecryptionKeys = async (params: FetchDecryptionKeysParams) => {
 
 export { fetchDecryptionKeys };
 export { convert };
+export * from './converters';
 export * from './client';
 export * from './key';
