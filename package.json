@@ -1,6 +1,6 @@
 {
   "name": "azot",
-  "version": "0.4.1",
+  "version": "0.4.3",
   "description": "Research & pentesting toolkit for Google's Widevine DRM",
   "type": "module",
   "files": [
@@ -9,7 +9,8 @@
     "dist/lib.js",
     "dist/lib.d.ts",
     "dist/cli.js",
-    "dist/cli.d.ts"
+    "dist/cli.d.ts",
+    "scripts/postinstall.js"
   ],
   "bin": {
     "azot": "dist/cli.js"
@@ -24,7 +25,7 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "compile": "tsc --noEmit",
-    "postinstall": "node ./scripts/postinstall.js",
+    "postinstall": "node scripts/postinstall.js",
     "test": "vitest"
   },
   "repository": {
@@ -58,12 +59,12 @@
   "exports": {
     ".": {
       "require": {
-        "types": "./dist/lib/main.d.cts",
-        "default": "./dist/lib/main.cjs"
+        "types": "./dist/lib.d.cts",
+        "default": "./dist/lib.cjs"
       },
       "import": {
-        "types": "./dist/lib/main.d.ts",
-        "default": "./dist/lib/main.js"
+        "types": "./dist/lib.d.ts",
+        "default": "./dist/lib.js"
       }
     }
   },
