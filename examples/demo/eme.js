@@ -1,5 +1,5 @@
-import { readFile } from 'node:fs/promises';
-import { Client, fromBase64, fromBuffer } from 'azot';
+const { readFile } = require('node:fs/promises');
+const { Client, fromBase64, fromBuffer } = require('azot');
 
 (async () => {
   const licenseUrl = 'https://cwip-shaka-proxy.appspot.com/no_auth';
