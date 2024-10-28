@@ -67,6 +67,7 @@ const fetchDecryptionKeys = async (params: FetchDecryptionKeysParams) => {
 };
 
 export { fetchDecryptionKeys };
+export { Session };
 export * from './utils';
 export * from './client';
 export * from './key';

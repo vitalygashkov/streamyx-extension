@@ -122,6 +122,20 @@ export class Session extends EventTarget implements MediaKeySession {
     this.dispatchEvent(new MessageEvent('license-request', message.bytes));
   }
 
+  async waitForLicenseRequest() {
+    return new Promise<Uint8Array>((resolve) => {
+      this.addEventListener(
+        'message',
+        (e) => {
+          const event = e as MessageEvent;
+          if (event.messageType === 'license-request')
+            resolve(new Uint8Array(event.message));
+        },
+        false,
+      );
+    });
+  }
+
   async #createLicenseRequest(pssh: PSSH) {
     const requestId = ArrayBuffer.isView(this.sessionId)
       ? (this.sessionId as unknown as Uint8Array)
