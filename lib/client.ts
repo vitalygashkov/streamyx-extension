@@ -41,7 +41,7 @@ export class Client {
 
   #key?: { forDecrypt: CryptoKey; forSign: CryptoKey };
 
-  static async importPacked(data: Uint8Array, format: 'WVDv2' = 'WVDv2') {
+  static async fromPacked(data: Uint8Array, format: 'WVDv2' = 'WVDv2') {
     if (format !== 'WVDv2') throw new Error('Only WVDv2 is supported');
     const parsed = parseWvd(data);
     const pcks1 = `-----BEGIN RSA PRIVATE KEY-----\n${fromBuffer(parsed.privateKey).toBase64()}\n-----END RSA PRIVATE KEY-----`;
@@ -53,11 +53,7 @@ export class Client {
     return client;
   }
 
-  static async importUnpacked(
-    id: Uint8Array,
-    key: Uint8Array,
-    vmp?: Uint8Array,
-  ) {
+  static async fromUnpacked(id: Uint8Array, key: Uint8Array, vmp?: Uint8Array) {
     const client = new Client(id);
     if (vmp) {
       client.vmp = FileHashes.decode(vmp);

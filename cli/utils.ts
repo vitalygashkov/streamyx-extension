@@ -17,18 +17,18 @@ export const importClient = async (input: string) => {
       const keyPath = join(input, keyFilename);
       const id = await readFile(idPath);
       const key = await readFile(keyPath);
-      return Client.importUnpacked(id, key);
+      return Client.fromUnpacked(id, key);
     } else if (isPacked) {
       const wvdPath = join(input, wvdFilename);
       const wvd = await readFile(wvdPath);
-      return await Client.importPacked(wvd);
+      return await Client.fromPacked(wvd);
     } else {
       console.log(`Unable to find client files in ${input}`);
       process.exit(1);
     }
   } else if (input.endsWith('.wvd')) {
     const wvd = await readFile(input);
-    return Client.importPacked(wvd);
+    return Client.fromPacked(wvd);
   } else {
     console.log(`Unable to find client files in ${input}`);
     process.exit(1);

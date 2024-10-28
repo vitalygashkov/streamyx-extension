@@ -15,7 +15,7 @@ export const read = async (filename: string) =>
 export const createClient = async () => {
   const id = await read('device_client_id_blob');
   const key = await read('device_private_key');
-  return Client.importUnpacked(id, key);
+  return Client.fromUnpacked(id, key);
 };
 
 export const fetchDecryptionKeysWithDefaults = async (client?: Client) => {

@@ -5,7 +5,7 @@ import { fetchDecryptionKeysWithDefaults, read } from './utils';
 test('export client', async () => {
   const originalId = await read('device_client_id_blob');
   const originalKey = await read('device_private_key');
-  const client = await Client.importUnpacked(originalId, originalKey);
+  const client = await Client.fromUnpacked(originalId, originalKey);
   const [exportedId, exportedKey] = await client.unpack();
 
   const originalIdText = fromBuffer(originalId).toBase64();
@@ -25,7 +25,7 @@ test('export client', async () => {
 
 test('import wvd', async () => {
   const wvd = await read('client.wvd');
-  const client = await Client.importPacked(wvd);
+  const client = await Client.fromPacked(wvd);
   expect(client.id).toBeDefined();
   expect(client.key).toBeDefined();
   const keys = await fetchDecryptionKeysWithDefaults();
@@ -35,9 +35,9 @@ test('import wvd', async () => {
 test('export wvd', async () => {
   const id = await read('device_client_id_blob');
   const key = await read('device_private_key');
-  const client = await Client.importUnpacked(id, key);
+  const client = await Client.fromUnpacked(id, key);
   const wvd = await client.pack();
-  const wvdClient = await Client.importPacked(wvd);
+  const wvdClient = await Client.fromPacked(wvd);
   const keys = await fetchDecryptionKeysWithDefaults(wvdClient);
   expect(keys.length).toBe(5);
 });
