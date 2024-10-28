@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { Client, Session, fromBase64 } from '../../lib';
+import { Client, Session, fromBase64 } from 'azot';
 
 (async () => {
   const licenseUrl = 'https://cwip-shaka-proxy.appspot.com/no_auth';

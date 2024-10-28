@@ -1,4 +1,18 @@
-It's a minimal example of using `azot` to get a license for Bitmovin's Art of Motion Demo. This example similar to [example from EME](https://www.w3.org/TR/encrypted-media-2/#example-8).
+# Azot Demo
+
+It's a minimal example of using `azot` to get a license for Bitmovin's Art of Motion Demo
+
+## Azot API
+
+`./azot-api.js`
+
+This API may be familiar to those who have used [pywidevine](https://github.com/devine-dl/pywidevine?tab=readme-ov-file#usage).
+
+## Encrypted Media Extensions API
+
+`./eme-api.js`
+
+This example similar to [example from EME](https://www.w3.org/TR/encrypted-media-2/#example-8).
 
 There are some differences from the native EME implementation:
 
