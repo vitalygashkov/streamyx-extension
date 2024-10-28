@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get name and version from package.json
+        run: |
+          test -n $(node -p -e "require('./package.json').name") &&
+          test -n $(node -p -e "require('./package.json').version") &&
+          echo PACKAGE_NAME=$(node -p -e "require('./package.json').name") >> $GITHUB_ENV &&
+          echo PACKAGE_VERSION=$(node -p -e "require('./package.json').version") >> $GITHUB_ENV || exit 1
+
+      - name: Zip extensions
+        run: |
+          npm run zip
+          npm run zip:firefox
+
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: 'v${{ env.PACKAGE_VERSION }}'
+          generate_release_notes: true
+          files: |
+            ./.output/${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-chrome.zip
+
+permissions:
+  contents: write
