@@ -10,7 +10,7 @@ Azot (Russian word for "nitrogen", pronounced `/azо́t/`) is a set of tools (Ja
 
 ## Features
 
-- **Network-independent interception**: everything works even with one-time tokens and custom request body/response format.
+- **Network-independent interception**, so it doesn't matter if the request has one-time tokens or a custom request/response body format.
 - **Custom client support**: WVD v2, device_client_id_blob + device_private_key, client_id.bin + private_key.pem
 - **Logging** details from EME events in Developer Tools console of current page
 - **Manifest V3** compliant browser extension
@@ -44,11 +44,6 @@ npm install -g azot
 
 ## Usage
 
-### Example with Encrypted Media Extensions API
+### Library
 
-Source code for example available [here](https://github.com/vitalygashkov/orlan/blob/main/examples/demo/eme.js). It's a minimal example of using `azot` to get a license for Bitmovin's Art of Motion Demo. This example similar to [example from EME](https://www.w3.org/TR/encrypted-media-2/#example-8).
-
-There are some differences from the native EME implementation:
-
-1. You must import your Widevine client to obtain a license.
-2. In the `keyStatuses` field, Map's key is not just the key ID (like in EME), but pair with ID and value. For example, if key ID in HEX is `35e7eff366b24121a261832f3368146f` and content key itself is `f01471043a064e039a602346845b690f` then Map's key will be `35e7eff366b24121a261832f3368146f:f01471043a064e039a602346845b690f` (but as binary with `BufferSource` type) instead of just `35e7eff366b24121a261832f3368146f`.
+See [examples](https://github.com/vitalygashkov/azot/blob/main/examples).
