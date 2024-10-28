@@ -6,12 +6,7 @@ import {
   SignedDrmCertificate,
   SignedMessage,
 } from './proto';
-import {
-  convert,
-  createHmacSha256,
-  getRandomBytes,
-  getRandomHex,
-} from './crypto';
+import { createHmacSha256, getRandomBytes, getRandomHex } from './crypto';
 import { Key } from './key';
 import { Client } from './client';
 import { PSSH, createPssh } from './pssh';
@@ -19,6 +14,7 @@ import { deriveContext, deriveKeys } from './context';
 import { MessageEvent, getMessageType } from './message';
 import { parseCertificate, verifyCertificate } from './certificate';
 import { concatUint8Arrays } from './buffer';
+import { fromBuffer, fromText } from './utils';
 
 export type Logger = Pick<typeof console, 'debug' | 'error' | 'info' | 'warn'>;
 
@@ -32,7 +28,7 @@ export type SessionType = keyof typeof SESSION_TYPES;
 export const generateSessionId = (deviceType: string) => {
   switch (deviceType) {
     case 'chrome':
-      return convert.bytes(getRandomBytes()).toBase64();
+      return fromBuffer(getRandomBytes()).toBase64();
     case 'android':
     default: {
       // format: 16 random hexdigits, 2 digit counter, 14 0s
@@ -120,7 +116,7 @@ export class Session extends EventTarget implements MediaKeySession {
       SignedMessage.MessageType.LICENSE_REQUEST,
     );
     this.#contexts.set(
-      convert.bytes(licenseRequest.requestId).toText(),
+      fromBuffer(licenseRequest.requestId).toText(),
       deriveContext(licenseRequest.bytes),
     );
     this.dispatchEvent(new MessageEvent('license-request', message.bytes));
@@ -129,7 +125,7 @@ export class Session extends EventTarget implements MediaKeySession {
   async #createLicenseRequest(pssh: PSSH) {
     const requestId = ArrayBuffer.isView(this.sessionId)
       ? (this.sessionId as unknown as Uint8Array)
-      : convert.text(this.sessionId).toBuffer();
+      : fromText(this.sessionId).toBuffer();
     const entity = LicenseRequest.create({
       clientId: this.#serviceCertificate ? undefined : this.#client.id,
       encryptedClientId: this.#serviceCertificate
@@ -182,12 +178,12 @@ export class Session extends EventTarget implements MediaKeySession {
       signedLicense = SignedMessage.decode(response);
     } catch (e) {
       this.#log.error('Unable to parse license - check protobufs');
-      this.#log.debug(convert.bytes(response).toText());
+      this.#log.debug(fromBuffer(response).toText());
       return;
     }
 
     const license = License.decode(signedLicense.msg);
-    const requestId = convert.bytes(license.id!.requestId!).toText();
+    const requestId = fromBuffer(license.id!.requestId!).toText();
     const context = this.#contexts.get(requestId);
     if (!context)
       throw new Error(
@@ -236,7 +232,7 @@ export class Session extends EventTarget implements MediaKeySession {
   }
 
   async #verifyMessage(message: SignedMessage, key: Uint8Array) {
-    const actualSignatureHex = convert.bytes(message.signature).toHex();
+    const actualSignatureHex = fromBuffer(message.signature).toHex();
     const data = [message.msg];
     if (message.oemcryptoCoreMessage?.length)
       data.unshift(message.oemcryptoCoreMessage);
@@ -244,7 +240,7 @@ export class Session extends EventTarget implements MediaKeySession {
       key,
       concatUint8Arrays(...data),
     );
-    const calculatedSignatureHex = convert.bytes(calculatedSignature).toHex();
+    const calculatedSignatureHex = fromBuffer(calculatedSignature).toHex();
     const success = actualSignatureHex === calculatedSignatureHex;
     const signature = {
       actual: actualSignatureHex,
@@ -256,7 +252,7 @@ export class Session extends EventTarget implements MediaKeySession {
   #addKey(key: Key) {
     this.keys.set(key.id, key);
     (this.keyStatuses as unknown as Map<Uint8Array, MediaKeyStatus>).set(
-      convert.text(`${key.id}:${key.value}`).toBuffer(),
+      fromText(`${key.id}:${key.value}`).toBuffer(),
       'usable',
     );
   }

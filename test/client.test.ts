@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { Client, convert } from '../lib';
+import { Client, fromBuffer } from '../lib';
 import { fetchDecryptionKeysWithDefaults, read } from './utils';
 
 test('export client', async () => {
@@ -8,17 +8,15 @@ test('export client', async () => {
   const client = await Client.importUnpacked(originalId, originalKey);
   const [exportedId, exportedKey] = await client.unpack();
 
-  const originalIdText = convert.bytes(originalId).toBase64();
-  const exportedIdText = convert.bytes(exportedId).toBase64();
+  const originalIdText = fromBuffer(originalId).toBase64();
+  const exportedIdText = fromBuffer(exportedId).toBase64();
   expect(originalIdText).toBe(exportedIdText);
 
-  const originalKeyText = convert
-    .bytes(originalKey)
+  const originalKeyText = fromBuffer(originalKey)
     .toText()
     .split('\n')
     .map((s) => s.trim());
-  const exportedKeyText = convert
-    .bytes(exportedKey)
+  const exportedKeyText = fromBuffer(exportedKey)
     .toText()
     .split('\n')
     .map((s) => s.trim());

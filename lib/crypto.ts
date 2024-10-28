@@ -1,12 +1,5 @@
 import { KEYUTIL } from 'jsrsasign';
-import { fromBase64, fromBuffer, fromHex, fromText } from './converters';
-
-export const convert = {
-  text: fromText,
-  base64: fromBase64,
-  bytes: fromBuffer,
-  hex: fromHex,
-};
+import { fromBase64, fromBuffer } from './utils';
 
 export const toPKCS8 = (pem: string) => {
   const keyobj = KEYUTIL.getKey(pem);
@@ -21,7 +14,7 @@ export const toPKCS1 = (pem: string) => {
 };
 
 export const parseSpkiFromCertificateKey = (publicKey: Uint8Array) => {
-  const publicKeyDerHex = convert.bytes(publicKey).toHex();
+  const publicKeyDerHex = fromBuffer(publicKey).toHex();
   const keyResult = KEYUTIL.parsePublicRawRSAKeyHex(publicKeyDerHex);
   const key = KEYUTIL.getKey(keyResult);
   const pem = KEYUTIL.getPEM(key);

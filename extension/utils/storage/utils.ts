@@ -1,5 +1,5 @@
 import { WxtStorageItem } from 'wxt/storage';
-import { convert } from '../../../lib';
+import { fromBase64, fromBuffer } from '../../../lib';
 
 export const asBytes = <T extends WxtStorageItem<Uint8Array | null, {}>>(
   item: T,
@@ -8,10 +8,10 @@ export const asBytes = <T extends WxtStorageItem<Uint8Array | null, {}>>(
   getValue: async () => {
     const value = await item.getValue();
     if (!value) return value;
-    return convert.base64(value as unknown as string).toBuffer();
+    return fromBase64(value as unknown as string).toBuffer();
   },
   setValue: async (value: Uint8Array) => {
-    const data = convert.bytes(value).toBase64() as unknown as Uint8Array;
+    const data = fromBuffer(value).toBase64() as unknown as Uint8Array;
     return item.setValue(data);
   },
 });

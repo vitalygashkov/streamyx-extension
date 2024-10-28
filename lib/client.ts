@@ -1,4 +1,4 @@
-import { convert, getRandomBytes, toPKCS1, toPKCS8 } from './crypto';
+import { getRandomBytes, toPKCS1, toPKCS8 } from './crypto';
 import {
   ClientIdentification,
   DrmCertificate,
@@ -9,6 +9,7 @@ import {
 import { buildWvd, parseWvd, WVD_DEVICE_TYPES } from './wvd';
 import { importCertificateKey } from './certificate';
 import { Session, SessionType } from './session';
+import { fromBase64, fromBuffer, fromText } from './utils';
 
 export const CLIENT_TYPE = { android: 'android', chrome: 'chrome' } as const;
 
@@ -35,8 +36,8 @@ export class Client {
   static async importPacked(data: Uint8Array, format: 'WVDv2' = 'WVDv2') {
     if (format !== 'WVDv2') throw new Error('Only WVDv2 is supported');
     const parsed = parseWvd(data);
-    const pcks1 = `-----BEGIN RSA PRIVATE KEY-----\n${convert.bytes(parsed.privateKey).toBase64()}\n-----END RSA PRIVATE KEY-----`;
-    const key = convert.text(pcks1).toBuffer();
+    const pcks1 = `-----BEGIN RSA PRIVATE KEY-----\n${fromBuffer(parsed.privateKey).toBase64()}\n-----END RSA PRIVATE KEY-----`;
+    const key = fromText(pcks1).toBuffer();
     const type = types.get(parsed.deviceType);
     const securityLevel = parsed.securityLevel as SecurityLevel;
     const client = new Client(parsed.clientId, type, securityLevel);
@@ -91,14 +92,13 @@ export class Client {
     if (format !== 'WVDv2') throw new Error('Only WVDv2 is supported');
     const id = ClientIdentification.encode(this.id).finish();
     const key = await this.exportKey();
-    const keyDer = convert
-      .bytes(key)
+    const keyDer = fromBuffer(key)
       .toText()
       .split('\n')
       .map((s) => s.trim())
       .slice(1, -1)
       .join('\n');
-    const keyDerBinary = convert.base64(keyDer).toBuffer();
+    const keyDerBinary = fromBase64(keyDer).toBuffer();
     const [type] = types.entries().find(([, type]) => type === this.type)!;
     const wvd = buildWvd({
       clientId: id,
@@ -110,10 +110,10 @@ export class Client {
   }
 
   async importKey(pkcs1: Uint8Array) {
-    const pkcs1pem = convert.bytes(pkcs1).toText();
+    const pkcs1pem = fromBuffer(pkcs1).toText();
     const pkcs8pem = toPKCS8(pkcs1pem);
     const pemContents = pkcs8pem.split('\n').slice(1, -2).join('\n');
-    const data = convert.base64(pemContents).toBuffer();
+    const data = fromBase64(pemContents).toBuffer();
     const keyForDecrypt = await crypto.subtle.importKey(
       'pkcs8',
       data,
@@ -136,12 +136,12 @@ export class Client {
     const key = this.key.forSign;
     const der = await crypto.subtle.exportKey('pkcs8', key);
     const derAsBinary = new Uint8Array(der);
-    const derAsBase64 = convert.bytes(derAsBinary).toBase64();
+    const derAsBase64 = fromBuffer(derAsBinary).toBase64();
     const pemHeader = '-----BEGIN PRIVATE KEY-----';
     const pemFooter = '-----END PRIVATE KEY-----';
     const pem = `${pemHeader}\n${derAsBase64}\n-----${pemFooter}-----`;
     const pkcs1 = toPKCS1(pem).trim();
-    return convert.text(pkcs1).toBuffer();
+    return fromText(pkcs1).toBuffer();
   }
 
   async decryptWithKey(data: Uint8Array) {
@@ -197,15 +197,13 @@ export class Client {
     );
     const encryptedKeyBuffer = new Uint8Array(encryptedKey);
 
-    const properties = {
+    return EncryptedClientIdentification.create({
       providerId: serviceCertificate.providerId,
       serviceCertificateSerialNumber: serviceCertificate.serialNumber,
       encryptedClientIdIv: privacyIv,
       encryptedPrivacyKey: encryptedKeyBuffer,
       encryptedClientId: encryptedIdBuffer,
-    };
-
-    return EncryptedClientIdentification.create(properties);
+    });
   }
 
   toString() {

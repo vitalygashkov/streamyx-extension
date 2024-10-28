@@ -1,4 +1,4 @@
-import { convert } from './crypto';
+import { fromBase64, fromBuffer } from './utils';
 import { WidevinePsshData } from './proto';
 
 const WV_SYSTEM_ID = new Uint8Array([
@@ -22,7 +22,7 @@ function concatUint8Arrays(...arrays: Uint8Array[]): Uint8Array {
 
 const prepare = (data: Uint8Array | string): string => {
   const dataBuffer =
-    typeof data === 'string' ? convert.base64(data).toBuffer() : data;
+    typeof data === 'string' ? fromBase64(data).toBuffer() : data;
   const dataFragment = dataBuffer.subarray(12, 28);
   const isWidevineSystemIdDetected = areUint8ArraysEqual(
     dataFragment,
@@ -30,7 +30,7 @@ const prepare = (data: Uint8Array | string): string => {
   );
 
   if (isWidevineSystemIdDetected) {
-    return typeof data === 'string' ? data : convert.bytes(data).toBase64();
+    return typeof data === 'string' ? data : fromBuffer(data).toBase64();
   }
 
   const header = new Uint8Array([0, 0, 0, 32 + dataBuffer.length]);
@@ -47,14 +47,14 @@ const prepare = (data: Uint8Array | string): string => {
     dataBuffer,
   );
 
-  return convert.bytes(newData).toBase64();
+  return fromBuffer(newData).toBase64();
 };
 
 const parse = (initData: Uint8Array | string) => {
   try {
     const initDataBuffer =
       typeof initData === 'string'
-        ? convert.base64(initData).toBuffer().subarray(32)
+        ? fromBase64(initData).toBuffer().subarray(32)
         : initData.subarray(32);
     return WidevinePsshData.decode(initDataBuffer);
   } catch (e) {

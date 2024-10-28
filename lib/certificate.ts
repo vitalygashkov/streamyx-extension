@@ -1,5 +1,5 @@
+import { fromBase64 } from './utils';
 import {
-  convert,
   importSpkiKeyForEncrypt,
   importSpkiKeyForVerify,
   parseSpkiFromCertificateKey,
@@ -23,7 +23,7 @@ export const getRootCertificate = () => {
     .join('\n');
 
   const signedDrmCertificate = SignedDrmCertificate.decode(
-    convert.base64(signedDrmCertificateBase64).toBuffer(),
+    fromBase64(signedDrmCertificateBase64).toBuffer(),
   );
 
   const drmCertificate = DrmCertificate.decode(
@@ -68,7 +68,7 @@ export const verifyCertificate = async (
 export const parseCertificate = async (data: Uint8Array | string) => {
   const certificate = ArrayBuffer.isView(data)
     ? data
-    : convert.base64(data).toBuffer();
+    : fromBase64(data).toBuffer();
   let signedDrmCertificate: SignedDrmCertificate;
   let signedMessage: SignedMessage;
   try {

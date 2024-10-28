@@ -1,8 +1,5 @@
-import {
-  convert,
-  decryptWithAesCbc,
-  importAesCbcKeyForDecrypt,
-} from './crypto';
+import { fromBuffer } from './utils';
+import { decryptWithAesCbc, importAesCbcKeyForDecrypt } from './crypto';
 import { License } from './proto';
 
 export class Key {
@@ -50,8 +47,8 @@ export class Key {
       decryptionKey,
       container.iv,
     );
-    const id = container.id ? convert.bytes(container.id).toHex() : 'UNKNOWN';
-    const value = convert.bytes(keyValue).toHex();
+    const id = container.id ? fromBuffer(container.id).toHex() : 'UNKNOWN';
+    const value = fromBuffer(keyValue).toHex();
     const type = License.KeyContainer.KeyType[container.type!];
     return new Key(
       id,

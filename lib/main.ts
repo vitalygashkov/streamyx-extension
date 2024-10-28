@@ -1,6 +1,5 @@
 import { Client } from './client';
-import { fromBase64 } from './converters';
-import { convert } from './crypto';
+import { fromBase64 } from './utils';
 import { defaultRequestFilter, defaultResponseFilter } from './http';
 import { Session, Logger } from './session';
 
@@ -68,7 +67,6 @@ const fetchDecryptionKeys = async (params: FetchDecryptionKeysParams) => {
 };
 
 export { fetchDecryptionKeys };
-export { convert };
-export * from './converters';
+export * from './utils';
 export * from './client';
 export * from './key';

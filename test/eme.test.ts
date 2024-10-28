@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { convert } from '../lib';
+import { fromBase64, fromBuffer } from '../lib';
 import { PSSH, LICENSE_URL, createClient } from './utils';
 
 // https://www.w3.org/TR/encrypted-media-2/#example-8
@@ -39,7 +39,7 @@ test('encrypted media extensions', async () => {
     const keySession = event.target as MediaKeySession;
     const keys = Array.from(keySession.keyStatuses.keys());
     expect(keys.length).toBe(5);
-    const firstKey = convert.bytes(keys[0] as Uint8Array).toText();
+    const firstKey = fromBuffer(keys[0] as Uint8Array).toText();
     expect(firstKey).toBeDefined();
     expect(firstKey).toBe(
       'ccbf5fb4c2965be7aa130ffb3ba9fd73:9cc0c92044cb1d69433f5f5839a159df',
@@ -48,7 +48,7 @@ test('encrypted media extensions', async () => {
 
   const client = await createClient();
   const initDataType = 'cenc';
-  const initData = convert.base64(PSSH).toBuffer();
+  const initData = fromBase64(PSSH).toBuffer();
 
   const keySystemAccess = client.requestMediaKeySystemAccess(
     'com.widevine.alpha',

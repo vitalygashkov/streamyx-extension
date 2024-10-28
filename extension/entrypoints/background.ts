@@ -1,4 +1,4 @@
-import { Client, convert } from '@azot/lib';
+import { Client, fromBuffer } from '@azot/lib';
 import { getMessageType } from '@azot/lib/message';
 import { appStorage } from '@/utils/storage';
 
@@ -74,9 +74,9 @@ export default defineBackground({
             .get(session.sessionId)
             ?.find((e) => e.messageType === 'license-request');
           if (!event?.message) return console.log(`[azot] No message`);
-          const messageBase64 = convert
-            .bytes(new Uint8Array(event.message))
-            .toBase64();
+          const messageBase64 = fromBuffer(
+            new Uint8Array(event.message),
+          ).toBase64();
           console.log(events.get(session.sessionId));
           console.log(`[azot] Sending challenge`, messageBase64, event);
           sendResponse(messageBase64);
@@ -103,7 +103,7 @@ export default defineBackground({
               (event) => {
                 const keySession = event.target as MediaKeySession;
                 const toPair = (key: Uint8Array) =>
-                  convert.bytes(key).toText().split(':') as [
+                  fromBuffer(key).toText().split(':') as [
                     id: string,
                     value: string,
                   ];

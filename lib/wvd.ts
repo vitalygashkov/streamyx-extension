@@ -1,7 +1,7 @@
-import { convert } from './crypto';
+import { fromText } from './utils';
 
 const VERSION = 2;
-const MAGIC = convert.text('WVD').toBuffer();
+const MAGIC = fromText('WVD').toBuffer();
 
 export const WVD_DEVICE_TYPES = { chrome: 1, android: 2 } as const;
 
