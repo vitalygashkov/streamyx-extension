@@ -1,5 +1,5 @@
 import { Component, JSX } from 'solid-js';
-import { cn } from '../cn';
+import { cn } from '../utils/cn';
 import styles from './switch.module.css';
 
 export interface SwitchProps extends JSX.InputHTMLAttributes<HTMLInputElement> {

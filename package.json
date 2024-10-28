@@ -1,6 +1,6 @@
 {
   "name": "azot",
-  "version": "0.4.9",
+  "version": "0.5.0",
   "description": "Research & pentesting toolkit for Google's Widevine DRM",
   "type": "module",
   "files": [
@@ -70,6 +70,7 @@
     "node": "20 || 21 || 22 || 23"
   },
   "dependencies": {
+    "@solidjs/router": "^0.14.10",
     "jsrsasign": "^11.1.0",
     "protobufjs": "^7.4.0",
     "solid-icons": "^1.1.0",

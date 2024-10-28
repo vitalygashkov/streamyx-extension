@@ -1,13 +1,23 @@
 import { Component } from 'solid-js';
-import { TbShieldCheck, TbShieldDown } from 'solid-icons/tb';
+import { TbShieldDown } from 'solid-icons/tb';
 import { Client } from '@azot/lib';
-import { appStorage } from '@/utils/storage';
 import { Cell } from './cell';
+import { useActiveClient, useClients } from '../utils/state';
+import { appStorage } from '@/utils/storage';
 
 export const CellImportClient: Component<{
+  disabled?: boolean;
   onChange?: (client: Client) => void;
 }> = (props) => {
-  const [client, setClient] = createSignal<Client | null>(null);
+  const [, setActiveClient] = useActiveClient();
+  const [clients, setClients] = useClients();
+
+  const addClient = async (client: Client) => {
+    const newClients = [...clients(), client];
+    setClients(newClients);
+    await appStorage.clients.add(client);
+    if (newClients.length === 1) setActiveClient(client);
+  };
 
   const createClient = async (
     id?: Uint8Array | null,
@@ -20,20 +30,8 @@ export const CellImportClient: Component<{
 
   const applyClient = (client?: Client) => {
     if (!client) return;
-    setClient(client);
     props.onChange?.(client);
   };
-
-  const initializeClient = async () => {
-    const wvd = await appStorage.client.wvd.getValue();
-    const id = await appStorage.client.id.getValue();
-    const key = await appStorage.client.key.getValue();
-    createClient(id, key, wvd).then(applyClient);
-  };
-
-  createEffect(() => {
-    initializeClient();
-  });
 
   const handleFileChange = async (event: Event) => {
     const files = Array.from((event.target as HTMLInputElement).files || []);
@@ -51,28 +49,22 @@ export const CellImportClient: Component<{
       ?.arrayBuffer()
       .then((buffer) => new Uint8Array(buffer));
 
-    if (id) appStorage.client.id.setValue(id);
-    if (key) appStorage.client.key.setValue(key);
-    if (wvd) appStorage.client.wvd.setValue(wvd);
-
-    createClient(id, key, wvd).then(applyClient);
+    const client = await createClient(id, key, wvd);
+    if (!client) return;
+    applyClient(client);
+    addClient(client);
   };
 
   return (
-    <Cell
-      title="Supported formats: *.wvd, device_client_id_blob/device_private_key, client_id.bin/private_key.pem"
-      before={client() ? <TbShieldCheck /> : <TbShieldDown />}
-      variant="primary"
-      component="label"
-    >
-      {client() ? client()?.toString() : 'Import Widevine client'}
+    <Cell before={<TbShieldDown />} variant="primary" component="label">
+      {'Import client'}
       <input
         class="hidden"
         id="file"
         name="client"
         multiple
         type="file"
-        disabled={!!client()}
+        disabled={props.disabled}
         onChange={handleFileChange}
       />
     </Cell>

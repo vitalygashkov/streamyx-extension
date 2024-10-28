@@ -1,23 +1,22 @@
 import { Client } from './client';
-import { fromBase64 } from './utils';
-import { defaultRequestFilter, defaultResponseFilter } from './http';
 import { Session, Logger } from './session';
+import { defaultRequestFilter, defaultResponseFilter } from './http';
+import { fromBase64 } from './utils';
 
 interface FetchDecryptionKeysParams {
   client: Client;
 
-  server: string;
   pssh: string;
+  server: string;
   individualizationServer?: string;
 
   headers?: Record<string, string>;
-  fetch?: typeof fetch;
   requestFilter?: (body: Uint8Array) => Uint8Array;
   responseFilter?: (data: Uint8Array) => Uint8Array;
+  fetch?: typeof fetch;
 
-  http2?: boolean; // TODO: Remove and automatically upgrade to HTTP/2 if needed
-  logger?: Logger;
   requestTemplate?: string;
+  logger?: Logger;
 }
 
 const fetchDecryptionKeys = async (params: FetchDecryptionKeysParams) => {

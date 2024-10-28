@@ -1,10 +1,12 @@
 import { Component, JSX } from 'solid-js';
-import { cn } from './cn';
+import { cn } from '../utils/cn';
 
 interface CellProps {
+  class?: string;
   title?: string;
   subtitle?: string;
   children: JSX.Element;
+  size?: 'md' | 'lg';
   variant?: 'default' | 'primary' | 'danger';
   before?: JSX.Element;
   after?: JSX.Element;
@@ -35,6 +37,7 @@ export const Cell: Component<CellProps> = (props) => {
         'transition hover:bg-slate-50 active:bg-slate-100',
         props.variant === 'primary' && 'text-[#007AFF]',
         props.variant === 'danger' && 'text-[#E53935]',
+        props.class,
       )}
       title={props.title}
       onClick={props.onClick}
@@ -42,7 +45,10 @@ export const Cell: Component<CellProps> = (props) => {
       {props.before && (
         <div class="[&>svg]:w-[18px] [&>svg]:h-[18px]">{props.before}</div>
       )}
-      <div class="flex flex-col truncate">{props.children}</div>
+      <div class="flex flex-col truncate">
+        {props.children}
+        <span class="text-[11px] text-neutral-500">{props.subtitle}</span>
+      </div>
       {props.after && <div class="ml-auto">{props.after}</div>}
     </Dynamic>
   );

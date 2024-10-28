@@ -61,13 +61,14 @@ export class Session extends EventTarget implements MediaKeySession {
   sessionType: SessionType;
   privacyMode?: boolean = false;
 
-  #individualizationSent: boolean = false;
   #client: Client;
-  #serviceCertificate?: SignedDrmCertificate;
-  #contexts: Map<string, { enc: Uint8Array; auth: Uint8Array }>;
   #log: Logger;
+
   #initData?: BufferSource;
   #initDataType?: string;
+  #individualizationSent: boolean = false;
+  #serviceCertificate?: SignedDrmCertificate;
+  #contexts: Map<string, { enc: Uint8Array; auth: Uint8Array }>;
 
   constructor(sessionType: SessionType = 'temporary', client: Client) {
     super();

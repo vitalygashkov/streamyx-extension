@@ -17,11 +17,11 @@ export default defineContentScript({
   matches: ['https://*/*'],
   runAt: 'document_start',
   allFrames: true,
-  async main(ctx) {
-    // Checking if extension enabled
-    const enabled = await appStorage.enabled.getValue();
+  async main() {
+    // Checking if interception enabled
+    const enabled = await appStorage.interceptionEnabled.getValue();
     if (enabled) console.log(`[azot] Injecting...`);
-    else return console.log(`[azot] Injecting disabled`);
+    else return console.log(`[azot] Interception disabled`);
 
     // Injecting script into current page
     inject('injected.js');

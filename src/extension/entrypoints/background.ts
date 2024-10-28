@@ -17,7 +17,7 @@ export default defineBackground({
     const loadClient = async () => {
       if (state.client) return state.client;
       console.log('[azot] Loading Widevine client...');
-      state.client = await appStorage.client.getValue();
+      state.client = await appStorage.clients.active.getValue();
       if (state.client) {
         console.log('[azot] Widevine client loaded');
         return state.client;
@@ -37,8 +37,18 @@ export default defineBackground({
       (async () => {
         console.log('[azot] Received message', message);
 
+        const spoofingEnabled = await appStorage.spoofingEnabled.getValue();
+        if (!spoofingEnabled) {
+          console.log('[azot] Spoofing disabled, skipping message...');
+          sendResponse();
+          return;
+        }
+
         const client = await loadClient();
-        if (!client) return;
+        if (!client) {
+          sendResponse();
+          return;
+        }
 
         const keySystem = client.requestMediaKeySystemAccess(
           'com.widevine.alpha',
