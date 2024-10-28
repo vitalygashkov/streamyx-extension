@@ -10,7 +10,10 @@ export const help = () => {
   );
   console.log('');
   console.log(`Flags:`);
-  console.log(col(`-H, --header`) + 'headers to send with license request');
+  console.log(
+    col(`-H, --header`) +
+      'headers to send with license request, compatible with curl (e.g. -H "Authorization: Bearer ...")',
+  );
   console.log(col(`-p, --pssh`) + 'widevine PSSH data in Base64');
   console.log(
     col(`-c, --client`) +

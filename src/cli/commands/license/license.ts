@@ -1,4 +1,4 @@
-import { fetchDecryptionKeys } from '@@/src/lib';
+import { fetchDecryptionKeys } from '../../../lib';
 import { importClient } from '../../utils';
 import { help } from './help';
 
@@ -11,10 +11,16 @@ type LicenseCommandParams = {
 };
 
 export const license = async (params: LicenseCommandParams) => {
+  const headers = Object.fromEntries(
+    params.headers?.map((header) => header.split(':').map((s) => s.trim())) ||
+      [],
+  );
+  console.log({ headers });
   const keys = await fetchDecryptionKeys({
     server: params.url,
     pssh: params.pssh,
     client: await importClient(params.clientPath || process.cwd()),
+    headers,
   });
   for (const key of keys) {
     console.log(`${key.id}:${key.value}`);
