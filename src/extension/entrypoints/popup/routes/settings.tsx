@@ -37,7 +37,7 @@ export const Settings = () => {
             Interception
           </Cell>
           <Cell
-            subtitle="Creating your own license request"
+            subtitle="Send our own license request"
             component="label"
             after={
               <Switch
