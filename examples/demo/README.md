@@ -4,13 +4,13 @@ It's a minimal example of using `azot` to get a license for Bitmovin's Art of Mo
 
 ## Azot API
 
-`./azot-api.js`
+`azot-api.js`
 
 This API may be familiar to those who have used [pywidevine](https://github.com/devine-dl/pywidevine?tab=readme-ov-file#usage).
 
 ## Encrypted Media Extensions API
 
-`./eme-api.js`
+`eme-api.js`
 
 This example similar to [example from EME](https://www.w3.org/TR/encrypted-media-2/#example-8).
 

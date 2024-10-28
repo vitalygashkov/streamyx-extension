@@ -12,7 +12,7 @@ import { Client, Session, fromBase64 } from 'azot';
 
   // Load device/client
   const wvd = await readFile('client.wvd');
-  const client = await Client.importPacked(wvd);
+  const client = await Client.fromPacked(wvd);
 
   // Create session
   const session = new Session('temporary', client);

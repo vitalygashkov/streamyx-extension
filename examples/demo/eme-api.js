@@ -9,11 +9,11 @@ import { Client, fromBase64, fromBuffer } from 'azot';
   // If you have device_client_id_blob and device_private_key files
   // const id = await readFile('device_client_id_blob');
   // const key = await readFile('device_private_key');
-  // const client = await Client.fromPair(id, key);
+  // const client = await Client.fromUnpacked(id, key);
 
   // If you have *.wvd file
   const wvd = await readFile('client.wvd');
-  const client = await Client.fromWvd(wvd);
+  const client = await Client.fromPacked(wvd);
 
   const initDataType = 'cenc';
   const initData = fromBase64(pssh).toBuffer();
