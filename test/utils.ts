@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { readFile } from 'node:fs/promises';
-import { Client, fetchDecryptionKeys } from '../lib';
+import { Client, fetchDecryptionKeys } from '../src/lib';
 
 export const WORKDIR = join(process.cwd(), '');
 

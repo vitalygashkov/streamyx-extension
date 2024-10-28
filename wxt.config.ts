@@ -4,7 +4,7 @@ import arraybuffer from 'vite-plugin-arraybuffer';
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
-  srcDir: './extension',
+  srcDir: './src/extension',
   manifest: {
     name: 'Azot',
     permissions: ['storage', 'tabs', 'activeTab', 'clipboardWrite'],

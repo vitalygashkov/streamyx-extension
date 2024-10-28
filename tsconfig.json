@@ -4,16 +4,16 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "paths": {
-      "@": ["./extension"],
-      "@/*": ["./extension/*"],
-      "~": ["./extension"],
-      "~/*": ["./extension/*"],
+      "@": ["./src/extension"],
+      "@/*": ["./src/extension/*"],
+      "~": ["./src/extension"],
+      "~/*": ["./src/extension/*"],
       "@@": ["."],
       "@@/*": ["./*"],
       "~~": ["."],
       "~~/*": ["./*"],
-      "@azot/lib": ["./lib"],
-      "@azot/lib/*": ["./lib/*"]
+      "@azot/lib": ["./src/lib"],
+      "@azot/lib/*": ["./src/lib/*"]
     }
   }
 }

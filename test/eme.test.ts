@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { fromBase64, fromBuffer } from '../lib';
+import { fromBase64, fromBuffer } from '../src/lib';
 import { PSSH, LICENSE_URL, createClient } from './utils';
 
 // https://www.w3.org/TR/encrypted-media-2/#example-8

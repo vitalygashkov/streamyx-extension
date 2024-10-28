@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { fetchDecryptionKeys } from '../lib';
+import { fetchDecryptionKeys } from '../src/lib';
 import { PSSH, LICENSE_URL, createClient } from './utils';
 
 test('fetch decryption keys', async () => {

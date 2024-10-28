@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { Client, fromBuffer } from '../lib';
+import { Client, fromBuffer } from '../src/lib';
 import { fetchDecryptionKeysWithDefaults, read } from './utils';
 
 test('export client', async () => {
