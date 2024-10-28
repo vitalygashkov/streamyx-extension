@@ -10,14 +10,14 @@ Azot (Russian word for "nitrogen", pronounced `/azо́t/`) is a set of tools (Ja
 
 ## Features
 
-- **Network-independent interception**, so it doesn't matter if the request has one-time tokens or a custom request/response body format.
-- **Custom client support**: WVD v2, device_client_id_blob + device_private_key, client_id.bin + private_key.pem
-- **Logging** details from EME events in Developer Tools console of current page
-- **Manifest V3** compliant browser extension
-- **Converting clients** between formats via CLI
-- **Encrypted Media Extensions API** compatibility via `requestMediaKeySystemAccess()` method
-- **Runtime agnostic** core: works in Node.js, Bun, Deno, browsers and more
 - **Minimal** dependencies
+- **Runtime agnostic** core: works in Node.js, Bun, Deno, browsers and more
+- **Logging** details from EME events in Developer Tools console of current page
+- **Encrypted Media Extensions API** compatibility via `requestMediaKeySystemAccess()` method
+- **Converting clients** between formats via CLI
+- **Manifest V3** compliant browser extension
+- **Custom client support**: WVD v2, device_client_id_blob + device_private_key, client_id.bin + private_key.pem
+- **Network-independent interception**, so it doesn't matter if the request has one-time tokens or a custom request/response body format.
 
 ## Installation
 
@@ -47,3 +47,7 @@ npm install -g azot
 ### Library
 
 See [examples](https://github.com/vitalygashkov/azot/blob/main/examples).
+
+### Command-line tool
+
+See help: `azot --help`
