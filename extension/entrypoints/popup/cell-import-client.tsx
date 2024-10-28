@@ -14,13 +14,8 @@ export const CellImportClient: Component<{
     key?: Uint8Array | null,
     wvd?: Uint8Array | null,
   ) => {
-    if (id && key) {
-      const client = new Client(id);
-      await client.importKey(key);
-      return client;
-    } else if (wvd) {
-      return Client.fromWvd(wvd);
-    }
+    if (id && key) return Client.importUnpacked(id, key);
+    else if (wvd) return Client.importPacked(wvd);
   };
 
   const applyClient = (client?: Client) => {

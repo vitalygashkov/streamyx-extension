@@ -1,5 +1,4 @@
 import { readFile } from 'node:fs/promises';
-// import { Client, fromBase64, fromBuffer } from '../../dist/lib.cjs';
 import { Client, fromBase64, fromBuffer } from 'azot';
 
 (async () => {

@@ -45,6 +45,8 @@ export const generateSessionId = (deviceType: string) => {
   }
 };
 
+export const INDIVIDUALIZATION_MESSAGE = new Uint8Array([0x08, 0x04]);
+
 /**
  * https://www.w3.org/TR/encrypted-media-2/#mediakeysession-interface
  */
@@ -103,7 +105,7 @@ export class Session extends EventTarget implements MediaKeySession {
       this.dispatchEvent(
         new MessageEvent(
           'individualization-request',
-          convert.text(`\x08\x04`).toBuffer(),
+          INDIVIDUALIZATION_MESSAGE,
         ),
       );
       this.#individualizationSent = true;
@@ -129,9 +131,7 @@ export class Session extends EventTarget implements MediaKeySession {
       ? (this.sessionId as unknown as Uint8Array)
       : convert.text(this.sessionId).toBuffer();
     const entity = LicenseRequest.create({
-      clientId: this.#serviceCertificate
-        ? undefined
-        : this.#client.identification,
+      clientId: this.#serviceCertificate ? undefined : this.#client.id,
       encryptedClientId: this.#serviceCertificate
         ? await this.#client.encryptId(this.#serviceCertificate)
         : undefined,

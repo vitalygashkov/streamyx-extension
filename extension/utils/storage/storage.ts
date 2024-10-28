@@ -13,8 +13,8 @@ export const appStorage = {
       const wvd = await appStorage.client.wvd.getValue();
       const id = await appStorage.client.id.getValue();
       const key = await appStorage.client.key.getValue();
-      if (id && key) return Client.fromPair(id, key);
-      else if (wvd) return Client.fromWvd(wvd);
+      if (id && key) return Client.importUnpacked(id, key);
+      else if (wvd) return Client.importPacked(wvd);
       else return null;
     },
   },

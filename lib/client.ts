@@ -21,7 +21,7 @@ const types = new Map<number, ClientType>([
 ]);
 
 export class Client {
-  identification: ClientIdentification;
+  id: ClientIdentification;
   type: ClientType;
   securityLevel: SecurityLevel;
   signedDrmCertificate: SignedDrmCertificate;
@@ -32,8 +32,9 @@ export class Client {
 
   #key?: { forDecrypt: CryptoKey; forSign: CryptoKey };
 
-  static async fromWvd(wvd: Uint8Array) {
-    const parsed = parseWvd(wvd);
+  static async importPacked(data: Uint8Array, format: 'WVDv2' = 'WVDv2') {
+    if (format !== 'WVDv2') throw new Error('Only WVDv2 is supported');
+    const parsed = parseWvd(data);
     const pcks1 = `-----BEGIN RSA PRIVATE KEY-----\n${convert.bytes(parsed.privateKey).toBase64()}\n-----END RSA PRIVATE KEY-----`;
     const key = convert.text(pcks1).toBuffer();
     const type = types.get(parsed.deviceType);
@@ -43,8 +44,16 @@ export class Client {
     return client;
   }
 
-  static async fromPair(id: Uint8Array, key: Uint8Array) {
+  static async importUnpacked(
+    id: Uint8Array,
+    key: Uint8Array,
+    vmp?: Uint8Array,
+  ) {
     const client = new Client(id);
+    if (vmp) {
+      client.vmp = FileHashes.decode(vmp);
+      client.id.vmpData = vmp;
+    }
     await client.importKey(key);
     return client;
   }
@@ -59,31 +68,28 @@ export class Client {
     type: ClientType = CLIENT_TYPE.android,
     securityLevel: SecurityLevel = 3,
   ) {
-    this.identification = ClientIdentification.decode(id);
-    this.signedDrmCertificate = SignedDrmCertificate.decode(
-      this.identification.token,
-    );
+    this.id = ClientIdentification.decode(id);
+    this.signedDrmCertificate = SignedDrmCertificate.decode(this.id.token);
     this.drmCertificate = DrmCertificate.decode(
       this.signedDrmCertificate.drmCertificate,
     );
     this.systemId = this.drmCertificate.systemId;
-    this.vmp = this.identification.vmpData
-      ? FileHashes.decode(this.identification.vmpData)
-      : null;
+    this.vmp = this.id.vmpData ? FileHashes.decode(this.id.vmpData) : null;
     this.type = type;
     this.securityLevel = securityLevel;
-    const clientInfo = this.identification.clientInfo;
+    const clientInfo = this.id.clientInfo;
     this.info = new Map(clientInfo.map((item) => [item.name!, item.value!]));
   }
 
-  async toPair(): Promise<[id: Uint8Array, key: Uint8Array]> {
-    const id = ClientIdentification.encode(this.identification).finish();
+  async unpack(): Promise<[id: Uint8Array, key: Uint8Array]> {
+    const id = ClientIdentification.encode(this.id).finish();
     const key = await this.exportKey();
     return [id, key];
   }
 
-  async toWvd() {
-    const id = ClientIdentification.encode(this.identification).finish();
+  async pack(format: 'WVDv2' = 'WVDv2') {
+    if (format !== 'WVDv2') throw new Error('Only WVDv2 is supported');
+    const id = ClientIdentification.encode(this.id).finish();
     const key = await this.exportKey();
     const keyDer = convert
       .bytes(key)
@@ -162,7 +168,7 @@ export class Client {
     const serviceCertificate = DrmCertificate.decode(
       certificate.drmCertificate,
     );
-    const id = ClientIdentification.encode(this.identification).finish();
+    const id = ClientIdentification.encode(this.id).finish();
 
     const privacyIv = getRandomBytes(16);
     const privacyKey = await crypto.subtle.generateKey(
