@@ -22,7 +22,7 @@ export default defineConfig({
     plugins: [arraybuffer()],
     resolve: {
       alias: {
-        '@azot/lib': resolve(dirname('.'), './lib'),
+        '@azot/lib': resolve(dirname('.'), './src/lib'),
       },
     },
   }),

@@ -1,4 +1,4 @@
-import { appStorage } from '@@/src/extension/utils/storage';
+import { appStorage } from '@/utils/storage';
 
 const inject = async (script: string) => {
   return new Promise((resolve) => {

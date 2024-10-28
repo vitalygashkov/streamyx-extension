@@ -1,6 +1,6 @@
-import { Client, fromBuffer } from '@@/src/lib';
-import { getMessageType } from '@@/src/lib/message';
-import { appStorage } from '@@/src/extension/utils/storage';
+import { appStorage } from '@/utils/storage';
+import { Client, fromBuffer } from '@azot/lib';
+import { getMessageType } from '@azot/lib/message';
 
 export default defineBackground({
   type: 'module',

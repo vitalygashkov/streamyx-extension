@@ -1,5 +1,5 @@
 import { TbTrash } from 'solid-icons/tb';
-import { appStorage } from '@@/src/extension/utils/storage';
+import { appStorage } from '@/utils/storage';
 import { Cell } from './cell';
 import { Switch } from './components/switch';
 import { CellImportClient } from './cell-import-client';

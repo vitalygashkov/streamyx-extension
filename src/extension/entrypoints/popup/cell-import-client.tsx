@@ -1,7 +1,7 @@
 import { Component } from 'solid-js';
 import { TbShieldCheck, TbShieldDown } from 'solid-icons/tb';
-import { Client } from '@@/src/lib';
-import { appStorage } from '@@/src/extension/utils/storage';
+import { Client } from '@azot/lib';
+import { appStorage } from '@/utils/storage';
 import { Cell } from './cell';
 
 export const CellImportClient: Component<{
