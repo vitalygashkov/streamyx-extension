@@ -85,10 +85,7 @@ export const getRandomInt = (start: number, end: number) => {
 };
 
 export const generateAesCbcKey = async (length = 128) =>
-  crypto.subtle.generateKey({ name: 'AES-CBC', length }, true, [
-    'encrypt',
-    'decrypt',
-  ]);
+  crypto.subtle.generateKey({ name: 'AES-CBC', length }, true, ['encrypt']);
 
 export const importAesCbcKeyForEncrypt = async (keyData: BufferSource) => {
   return crypto.subtle.importKey('raw', keyData, 'AES-CBC', false, ['encrypt']);
@@ -112,6 +109,27 @@ export const encryptWithAesCbc = async (
   return new Uint8Array(result);
 };
 
+export const decryptWithAesCbc = async (
+  data: BufferSource,
+  key: CryptoKey,
+  iv: BufferSource,
+) => {
+  const result = await crypto.subtle.decrypt(
+    { name: 'AES-CBC', iv },
+    key,
+    data,
+  );
+  return new Uint8Array(result);
+};
+
+export const encryptWithRsaOaep = async (data: Uint8Array, key: CryptoKey) => {
+  const result = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, key, data);
+  return new Uint8Array(result);
+};
+
+export const exportKey = (key: CryptoKey) =>
+  crypto.subtle.exportKey('raw', key).then((value) => new Uint8Array(value));
+
 export const importAesCtrKey = async (keyData: BufferSource) => {
   return crypto.subtle.importKey('raw', keyData, { name: 'AES-CTR' }, true, [
     'decrypt',
@@ -125,19 +143,6 @@ export const decryptWithAesCtr = async (
 ) => {
   const result = await crypto.subtle.decrypt(
     { name: 'AES-CTR', counter: iv },
-    key,
-    data,
-  );
-  return new Uint8Array(result);
-};
-
-export const decryptWithAesCbc = async (
-  data: BufferSource,
-  key: CryptoKey,
-  iv: BufferSource,
-) => {
-  const result = await crypto.subtle.decrypt(
-    { name: 'AES-CBC', iv },
     key,
     data,
   );

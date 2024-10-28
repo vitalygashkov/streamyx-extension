@@ -1,4 +1,12 @@
-import { getRandomBytes, toPKCS1, toPKCS8 } from './crypto';
+import {
+  encryptWithAesCbc,
+  encryptWithRsaOaep,
+  exportKey,
+  generateAesCbcKey,
+  getRandomBytes,
+  toPKCS1,
+  toPKCS8,
+} from './crypto';
 import {
   ClientIdentification,
   DrmCertificate,
@@ -169,40 +177,28 @@ export class Client {
       certificate.drmCertificate,
     );
     const id = ClientIdentification.encode(this.id).finish();
-
-    const privacyIv = getRandomBytes(16);
-    const privacyKey = await crypto.subtle.generateKey(
-      { name: 'AES-CBC', length: 128 },
-      true,
-      ['encrypt'],
-    );
-
-    const encryptedId = await crypto.subtle.encrypt(
-      { name: 'AES-CBC', iv: privacyIv },
-      privacyKey,
+    const privacyKey = await generateAesCbcKey();
+    const encryptedClientIdIv = getRandomBytes(16);
+    const encryptedClientId = await encryptWithAesCbc(
       id,
+      privacyKey,
+      encryptedClientIdIv,
     );
-    const encryptedIdBuffer = new Uint8Array(encryptedId);
-
-    const privacyKeyRaw = await crypto.subtle.exportKey('raw', privacyKey);
-    const privacyKeyRawBuffer = new Uint8Array(privacyKeyRaw);
     const publicKey = await importCertificateKey(
       serviceCertificate.publicKey,
       'encrypt',
     );
-    const encryptedKey = await crypto.subtle.encrypt(
-      { name: 'RSA-OAEP' },
+    const privacyKeyData = await exportKey(privacyKey);
+    const encryptedPrivacyKey = await encryptWithRsaOaep(
+      privacyKeyData,
       publicKey,
-      privacyKeyRawBuffer,
     );
-    const encryptedKeyBuffer = new Uint8Array(encryptedKey);
-
     return EncryptedClientIdentification.create({
       providerId: serviceCertificate.providerId,
       serviceCertificateSerialNumber: serviceCertificate.serialNumber,
-      encryptedClientIdIv: privacyIv,
-      encryptedPrivacyKey: encryptedKeyBuffer,
-      encryptedClientId: encryptedIdBuffer,
+      encryptedClientIdIv,
+      encryptedPrivacyKey,
+      encryptedClientId,
     });
   }
 
