@@ -37,10 +37,10 @@ npm install -g azot
 
 ### Browser extension
 
-1. Enable **Developer Mode** in [Chrome Extensions](chrome://extensions/) page
-2. Click on **Load Unpacked**
-3. Select folder where you extracted zip downloaded from [Releases](https://github.com/vitalygashkov/azot/releases) page
-4. Done!
+**Developer Mode** needs to be enabled in `chrome://extensions/` page
+
+1. Download archive from [latest release](https://github.com/vitalygashkov/azot/releases/latest)
+2. Drag and drop downloaded zip file to `chrome://extensions/` page
 
 ## Usage
 
