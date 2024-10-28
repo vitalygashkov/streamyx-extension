@@ -1,8 +1,8 @@
-import { existsSync } from 'fs';
-import { execSync } from 'child_process';
+import { existsSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 
-// Check if .git directory exists (we're in development)
-if (existsSync('.git')) {
+// Check if has WXT config
+if (existsSync('wxt.config.ts')) {
   try {
     // Run wxt prepare and pipe its output to the console
     execSync('wxt prepare', { stdio: 'inherit' });
