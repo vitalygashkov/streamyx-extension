@@ -33,7 +33,9 @@ export default defineContentScript({
         if (event.source != window) return;
         if (event.data.type !== 'drm-message') return;
         if (!event.data.log) return;
-        chrome.runtime.sendMessage(event.data.log).then((response) => {
+        const message = event.data.log;
+        message.url = window.location.href;
+        chrome.runtime.sendMessage(message).then((response) => {
           window.dispatchEvent(
             new CustomEvent('drm-message-response', { detail: response }),
           );

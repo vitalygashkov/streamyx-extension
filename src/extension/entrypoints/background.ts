@@ -112,17 +112,18 @@ export default defineBackground({
               'keystatuseschange',
               (event) => {
                 const keySession = event.target as MediaKeySession;
-                const toPair = (key: Uint8Array) =>
-                  fromBuffer(key).toText().split(':') as [
-                    id: string,
-                    value: string,
-                  ];
                 const keys = Array.from(
                   keySession.keyStatuses.keys(),
                 ) as unknown as Uint8Array[];
-                const results = keys.map((key) => toPair(key));
+                const toKey = (key: Uint8Array) => {
+                  const keyPair = fromBuffer(key).toText();
+                  const [id, value] = keyPair.split(':');
+                  return { id, value, url: message.url };
+                };
+                const results = keys.map((key) => toKey(key));
                 console.log('[azot] Received keys', results);
                 appStorage.keys.setValue(results);
+                appStorage.allKeys.add(...results);
                 sendResponse({ keys: results });
               },
               false,
