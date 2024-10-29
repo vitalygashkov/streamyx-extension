@@ -1,5 +1,5 @@
 import { Component } from 'solid-js';
-import { TbShieldDown } from 'solid-icons/tb';
+import { TbShieldPlus } from 'solid-icons/tb';
 import { Client } from '@azot/lib';
 import { Cell } from './cell';
 import { useActiveClient, useClients } from '../utils/state';
@@ -56,8 +56,8 @@ export const CellImportClient: Component<{
   };
 
   return (
-    <Cell before={<TbShieldDown />} variant="primary" component="label">
-      {'Import client'}
+    <Cell before={<TbShieldPlus />} variant="primary" component="label">
+      Import client
       <input
         class="hidden"
         id="file"
