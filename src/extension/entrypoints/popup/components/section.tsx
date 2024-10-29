@@ -2,7 +2,7 @@ import { Component, JSX } from 'solid-js';
 
 export const SectionFooter: Component<{ children: JSX.Element }> = (props) => {
   return (
-    <footer class="px-2 pt-2 pb-1 text-[10px] text-neutral-500">
+    <footer class="px-2 pt-1.5 pb-1 text-[10px] text-neutral-500">
       {props.children}
     </footer>
   );

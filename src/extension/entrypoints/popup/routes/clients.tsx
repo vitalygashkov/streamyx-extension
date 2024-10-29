@@ -49,7 +49,7 @@ export const Clients = () => {
         </SectionFooter>
       </Show>
       <Show when={clients().length > 0}>
-        <List>
+        <List class="mt-2">
           <Section
             header="Imported Clients"
             footer="You can add a maximum of 10 clients."

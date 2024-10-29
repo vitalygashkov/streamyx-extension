@@ -4,7 +4,7 @@ import { cn } from '../utils/cn';
 interface CellProps {
   class?: string;
   title?: string;
-  subtitle?: string;
+  subtitle?: JSX.Element;
   children: JSX.Element;
   size?: 'md' | 'lg';
   variant?: 'default' | 'primary' | 'danger';
@@ -34,7 +34,7 @@ export const Cell: Component<CellProps> = (props) => {
     <Dynamic
       component={component}
       class={cn(
-        'bg-white w-full min-h-9 py-2 rounded-lg text-[13px] flex items-center gap-3 px-3 cursor-pointer',
+        'bg-white w-full min-h-9 py-2 rounded-lg text-[13px] flex items-center px-3 cursor-pointer',
         'transition hover:bg-slate-50 active:bg-slate-100',
         props.variant === 'primary' && 'text-[#007AFF]',
         props.variant === 'danger' && 'text-[#E53935]',
@@ -45,11 +45,16 @@ export const Cell: Component<CellProps> = (props) => {
       onClick={props.onClick}
     >
       {props.before && (
-        <div class="[&>svg]:w-[18px] [&>svg]:h-[18px]">{props.before}</div>
+        <div class="[&>svg]:w-[18px] [&>svg]:h-[18px] mr-3">{props.before}</div>
       )}
       <div class="flex flex-col truncate select-none">
         {props.children}
-        <span class="text-[11px] text-neutral-500 select-none">
+        <span
+          class={cn(
+            'text-[11px] text-neutral-500 select-none',
+            props.variant === 'primary' && 'text-blue-500',
+          )}
+        >
           {props.subtitle}
         </span>
       </div>

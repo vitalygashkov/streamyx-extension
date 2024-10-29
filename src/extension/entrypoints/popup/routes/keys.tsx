@@ -24,9 +24,9 @@ export const Keys = () => {
       <Header backHref="/">Keys</Header>
       <div class="flex flex-col gap-3">
         <Cell before={<TbTrash />} variant="danger" onClick={clearKeys}>
-          Clear keys
+          Delete all keys
         </Cell>
-        <KeysList keys={keys} />
+        <KeysList header="All Keys" keys={keys} />
       </div>
     </Layout>
   );

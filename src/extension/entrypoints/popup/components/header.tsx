@@ -12,12 +12,12 @@ export const Header: Component<HeaderProps> = (props) => {
   return (
     <div
       class={cn(
-        'text-lg font-bold flex gap-2 items-center',
+        'text-lg font-bold flex gap-2 items-center select-none',
         props.backHref ? 'mb-2' : 'mb-1.5',
       )}
     >
       <Show when={props.backHref}>
-        <A href="/">
+        <A href={props.backHref!}>
           <FaSolidArrowLeft />
         </A>
       </Show>

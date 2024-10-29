@@ -1,4 +1,3 @@
-import { TbShieldCheck } from 'solid-icons/tb';
 import { appStorage } from '@/utils/storage';
 import { Cell } from '../components/cell';
 import {
@@ -47,18 +46,17 @@ export const Dashboard = () => {
           <CellImportClient />
         </Show>
         <Show when={activeClient()}>
-          <Cell
-            class="capitalize"
-            before={<TbShieldCheck />}
-            variant="primary"
-            component="label"
-          >
+          <Cell class="capitalize" component="label" subtitle="Active">
             {`${activeClient()?.info.get('company_name')} ${activeClient()?.info.get('model_name')}`}
           </Cell>
         </Show>
 
         <Show when={keys().length > 0}>
-          <KeysList keys={keys} />
+          <KeysList
+            keys={keys}
+            header="Recent Keys"
+            footer="Only keys from the last intercept are shown here"
+          />
         </Show>
 
         <Show when={keys().length === 0}>

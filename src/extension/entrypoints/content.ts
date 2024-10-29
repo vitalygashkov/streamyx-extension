@@ -14,7 +14,12 @@ const inject = async (script: string) => {
 };
 
 export default defineContentScript({
-  matches: ['https://*/*'],
+  matches: [
+    'https://*.qq.com/*',
+    'https://*.wetv.vip/*',
+    'https://*.bitmovin.com/*',
+    'https://*.wink.ru/*',
+  ],
   runAt: 'document_start',
   allFrames: true,
   async main() {
