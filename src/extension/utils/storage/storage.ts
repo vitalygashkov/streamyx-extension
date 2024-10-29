@@ -1,6 +1,8 @@
-import { storage } from 'wxt/storage';
+import { storage, WatchCallback } from 'wxt/storage';
 import { Client, fromBase64, fromBuffer } from '../../../lib';
 import { asJson } from './utils';
+
+export type KeyInfo = { id: string; value: string; url?: string };
 
 export const appStorage = {
   interceptionEnabled: storage.defineItem<boolean>(
@@ -8,7 +10,40 @@ export const appStorage = {
   ),
   spoofingEnabled: storage.defineItem<boolean>('local:spoofing-enabled'),
 
-  keys: asJson(storage.defineItem<[id: string, value: string][]>('local:keys')),
+  keys: asJson(
+    storage.defineItem<{ id: string; value: string }[]>('local:keys'),
+  ),
+  allKeys: {
+    raw: asJson(storage.defineItem<KeyInfo[]>('local:all-keys')),
+    setValue: async (keys: KeyInfo[]) => {
+      appStorage.allKeys.raw.watch((keys) => {});
+      await appStorage.allKeys.raw.setValue(keys);
+    },
+    getValue: async () => {
+      return appStorage.allKeys.raw.getValue();
+    },
+    clear: async () => {
+      await appStorage.allKeys.raw.setValue([]);
+      await appStorage.keys.setValue([]);
+    },
+    add: async (...newKeys: KeyInfo[]) => {
+      const keys = (await appStorage.allKeys.getValue()) || [];
+      for (const newKey of newKeys) {
+        const added = keys.some((key) => key.id === newKey.id);
+        if (added) continue;
+        keys.push(newKey);
+      }
+      await appStorage.allKeys.setValue(keys);
+    },
+    remove: async (key: KeyInfo) => {
+      const keys = (await appStorage.allKeys.getValue()) || [];
+      keys.splice(
+        keys.findIndex((k) => k.id === key.id),
+        1,
+      );
+      await appStorage.allKeys.setValue(keys);
+    },
+  },
 
   clients: {
     raw: asJson(storage.defineItem<string[]>('local:clients')),
