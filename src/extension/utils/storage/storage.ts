@@ -2,7 +2,7 @@ import { storage, WatchCallback } from 'wxt/storage';
 import { Client, fromBase64, fromBuffer } from '../../../lib';
 import { asJson } from './utils';
 
-export type KeyInfo = { id: string; value: string; url?: string };
+export type KeyInfo = { id: string; value: string; url: string; pssh: string };
 
 export const appStorage = {
   interceptionEnabled: storage.defineItem<boolean>(

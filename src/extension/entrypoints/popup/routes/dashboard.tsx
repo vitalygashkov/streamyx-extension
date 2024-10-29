@@ -51,13 +51,11 @@ export const Dashboard = () => {
           </Cell>
         </Show>
 
-        <Show when={keys().length > 0}>
-          <KeysList
-            keys={keys}
-            header="Recent Keys"
-            footer="Only keys from the last intercept are shown here"
-          />
-        </Show>
+        <KeysList
+          keys={keys}
+          header="Recent Keys"
+          footer="Only keys from the last intercept are shown here"
+        />
 
         <Show when={keys().length === 0}>
           <footer class="w-full flex flex-col items-center justify-center text-center gap-1 mt-auto py-2">

@@ -14,31 +14,33 @@ type KeysListProps = {
 
 export const KeysList: Component<KeysListProps> = (props) => {
   return (
-    <List>
-      <Section header={props.header} footer={props.footer}>
-        {props.keys().map(({ id, value, url }) => (
-          <Cell
-            class="group relative"
-            after={
-              <div class="absolute top-[15px] right-3 z-10">
-                <TbCopy class="text-blue-500 w-5 h-5 transition-all opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0" />
-              </div>
-            }
-            onClick={() => copyKey({ id, value })}
-          >
-            <code class="text-[13px] truncate transition-all w-full group-hover:w-[90%]">
-              {id}
-            </code>
-            <a
-              target="_blank"
-              href={url}
-              class="text-[10px] text-gray-500 w-fit truncate hover:underline hover:text-blue-500"
+    <Show when={props.keys().length > 0}>
+      <List>
+        <Section header={props.header} footer={props.footer}>
+          {props.keys().map(({ id, value, url }) => (
+            <Cell
+              class="group relative"
+              after={
+                <div class="absolute top-[15px] right-3 z-10">
+                  <TbCopy class="text-blue-500 w-5 h-5 transition-all opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0" />
+                </div>
+              }
+              onClick={() => copyKey({ id, value })}
             >
-              {url?.replace('https://', '')}
-            </a>
-          </Cell>
-        ))}
-      </Section>
-    </List>
+              <code class="text-[13px] truncate transition-all w-full group-hover:w-[90%]">
+                {id}
+              </code>
+              <a
+                target="_blank"
+                href={url}
+                class="text-[10px] text-gray-500 w-fit truncate hover:underline hover:text-blue-500"
+              >
+                {url?.replace('https://', '')}
+              </a>
+            </Cell>
+          ))}
+        </Section>
+      </List>
+    </Show>
   );
 };

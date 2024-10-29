@@ -4,6 +4,7 @@ import { Header } from '../components/header';
 import { Cell } from '../components/cell';
 import { appStorage, KeyInfo } from '@/utils/storage';
 import { KeysList } from '../components/keys-list';
+import { NoKeys } from '../components/no-keys';
 
 export const Keys = () => {
   const [keys, setKeys] = createSignal<KeyInfo[]>([]);
@@ -27,6 +28,9 @@ export const Keys = () => {
           Delete all keys
         </Cell>
         <KeysList header="All Keys" keys={keys} />
+        <Show when={!keys().length}>
+          <NoKeys />
+        </Show>
       </div>
     </Layout>
   );

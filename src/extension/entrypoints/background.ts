@@ -118,7 +118,12 @@ export default defineBackground({
                 const toKey = (key: Uint8Array) => {
                   const keyPair = fromBuffer(key).toText();
                   const [id, value] = keyPair.split(':');
-                  return { id, value, url: message.url };
+                  return {
+                    id,
+                    value,
+                    url: message.url,
+                    pssh: message.initData,
+                  };
                 };
                 const results = keys.map((key) => toKey(key));
                 console.log('[azot] Received keys', results);
