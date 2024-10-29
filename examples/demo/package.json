@@ -12,6 +12,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "azot": "^0.4.9"
+    "azot": "^0.5.0"
   }
 }
