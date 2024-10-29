@@ -11,6 +11,7 @@ interface CellProps {
   before?: JSX.Element;
   after?: JSX.Element;
   component?: 'div' | 'button' | 'label';
+  disabled?: boolean;
   onClick?: () => void;
 }
 
@@ -37,6 +38,7 @@ export const Cell: Component<CellProps> = (props) => {
         'transition hover:bg-slate-50 active:bg-slate-100',
         props.variant === 'primary' && 'text-[#007AFF]',
         props.variant === 'danger' && 'text-[#E53935]',
+        props.disabled && 'cursor-default pointer-events-none opacity-70',
         props.class,
       )}
       title={props.title}
@@ -45,9 +47,11 @@ export const Cell: Component<CellProps> = (props) => {
       {props.before && (
         <div class="[&>svg]:w-[18px] [&>svg]:h-[18px]">{props.before}</div>
       )}
-      <div class="flex flex-col truncate">
+      <div class="flex flex-col truncate select-none">
         {props.children}
-        <span class="text-[11px] text-neutral-500">{props.subtitle}</span>
+        <span class="text-[11px] text-neutral-500 select-none">
+          {props.subtitle}
+        </span>
       </div>
       {props.after && <div class="ml-auto">{props.after}</div>}
     </Dynamic>
