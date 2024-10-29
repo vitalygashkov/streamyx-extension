@@ -12,6 +12,16 @@ export const Settings = () => {
     useInterceptionEnabled();
   const [spoofingEnabled, setSpoofingEnabled] = useSpoofingEnabled();
 
+  const switchInterception = (checked: boolean) => {
+    setInterceptionEnabled(checked);
+    appStorage.interceptionEnabled.setValue(checked);
+  };
+
+  const switchSpoofing = (checked: boolean) => {
+    setSpoofingEnabled(checked);
+    appStorage.spoofingEnabled.setValue(checked);
+  };
+
   return (
     <Layout>
       <Header backHref="/">Settings</Header>
@@ -28,8 +38,9 @@ export const Settings = () => {
               <Switch
                 checked={interceptionEnabled()}
                 onChange={(e) => {
-                  setInterceptionEnabled(e.target.checked);
-                  appStorage.interceptionEnabled.setValue(e.target.checked);
+                  const checked = e.target.checked;
+                  if (!checked) switchSpoofing(false);
+                  switchInterception(checked);
                 }}
               />
             }
@@ -39,13 +50,11 @@ export const Settings = () => {
           <Cell
             subtitle="Send our own license request"
             component="label"
+            disabled={!interceptionEnabled()}
             after={
               <Switch
                 checked={spoofingEnabled()}
-                onChange={(e) => {
-                  setSpoofingEnabled(e.target.checked);
-                  appStorage.spoofingEnabled.setValue(e.target.checked);
-                }}
+                onChange={(e) => switchSpoofing(e.target.checked)}
               />
             }
           >
