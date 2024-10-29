@@ -1,4 +1,3 @@
-import { TbCopy } from 'solid-icons/tb';
 import { Accessor, Component } from 'solid-js';
 import { Cell } from './cell';
 import { KeyInfo } from '@/utils/storage';
@@ -17,26 +16,25 @@ export const KeysList: Component<KeysListProps> = (props) => {
     <Show when={props.keys().length > 0}>
       <List>
         <Section header={props.header} footer={props.footer}>
-          {props.keys().map(({ id, value, url }) => (
-            <Cell
-              class="group relative"
-              after={
-                <div class="absolute top-[15px] right-3 z-10">
-                  <TbCopy class="text-blue-500 w-5 h-5 transition-all opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0" />
+          {props.keys().map(({ id, value, url, createdAt }) => (
+            <Cell class="group" onClick={() => copyKey({ id, value })}>
+              <code class="text-[13px] truncate w-full">{id}</code>
+              <div class="text-[10px] text-gray-500 flex justify-between">
+                <a
+                  target="_blank"
+                  href={url}
+                  class="w-fit truncate hover:underline hover:text-blue-500"
+                >
+                  {url?.replace('https://', '')}
+                </a>
+                {/* Date without seconds */}
+                <div class="">
+                  {new Date(createdAt)
+                    .toLocaleString()
+                    .replace(',', '')
+                    .slice(0, -3)}
                 </div>
-              }
-              onClick={() => copyKey({ id, value })}
-            >
-              <code class="text-[13px] truncate transition-all w-full group-hover:w-[90%]">
-                {id}
-              </code>
-              <a
-                target="_blank"
-                href={url}
-                class="text-[10px] text-gray-500 w-fit truncate hover:underline hover:text-blue-500"
-              >
-                {url?.replace('https://', '')}
-              </a>
+              </div>
             </Cell>
           ))}
         </Section>

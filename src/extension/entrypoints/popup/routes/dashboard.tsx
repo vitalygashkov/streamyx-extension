@@ -1,4 +1,4 @@
-import { appStorage } from '@/utils/storage';
+import { appStorage, KeyInfo } from '@/utils/storage';
 import { Cell } from '../components/cell';
 import {
   useActiveClient,
@@ -17,7 +17,7 @@ export const Dashboard = () => {
   const [clients] = useClients();
   const [, setInterceptionEnabled] = useInterceptionEnabled();
   const [, setSpoofingEnabled] = useSpoofingEnabled();
-  const [keys, setKeys] = createSignal<{ id: string; value: string }[]>([]);
+  const [keys, setKeys] = createSignal<KeyInfo[]>([]);
   const [activeClient, setActiveClient] = useActiveClient();
 
   onMount(async () => {
@@ -54,7 +54,7 @@ export const Dashboard = () => {
         <KeysList
           keys={keys}
           header="Recent Keys"
-          footer="Only keys from the last intercept are shown here"
+          footer="Only keys from the last intercept are shown here. Click on the key to copy it to the clipboard"
         />
 
         <Show when={keys().length === 0}>

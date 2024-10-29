@@ -123,6 +123,7 @@ export default defineBackground({
                     value,
                     url: message.url,
                     pssh: message.initData,
+                    createdAt: new Date().getTime(),
                   };
                 };
                 const results = keys.map((key) => toKey(key));

@@ -27,7 +27,11 @@ export const Keys = () => {
         <Cell before={<TbTrash />} variant="danger" onClick={clearKeys}>
           Delete all keys
         </Cell>
-        <KeysList header="All Keys" keys={keys} />
+        <KeysList
+          keys={keys}
+          header="All Keys"
+          footer="Click on the key to copy it to the clipboard"
+        />
         <Show when={!keys().length}>
           <NoKeys />
         </Show>

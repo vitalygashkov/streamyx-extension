@@ -2,7 +2,13 @@ import { storage, WatchCallback } from 'wxt/storage';
 import { Client, fromBase64, fromBuffer } from '../../../lib';
 import { asJson } from './utils';
 
-export type KeyInfo = { id: string; value: string; url: string; pssh: string };
+export type KeyInfo = {
+  id: string;
+  value: string;
+  url: string;
+  pssh: string;
+  createdAt: number;
+};
 
 export const appStorage = {
   interceptionEnabled: storage.defineItem<boolean>(
@@ -10,9 +16,7 @@ export const appStorage = {
   ),
   spoofingEnabled: storage.defineItem<boolean>('local:spoofing-enabled'),
 
-  keys: asJson(
-    storage.defineItem<{ id: string; value: string }[]>('local:keys'),
-  ),
+  keys: asJson(storage.defineItem<KeyInfo[]>('local:keys')),
   allKeys: {
     raw: asJson(storage.defineItem<KeyInfo[]>('local:all-keys')),
     setValue: async (keys: KeyInfo[]) => {
