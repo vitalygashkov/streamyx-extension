@@ -1,4 +1,4 @@
-import { WxtStorageItem } from 'wxt/storage';
+import { WatchCallback, WxtStorageItem } from 'wxt/storage';
 import { fromBase64, fromBuffer } from '../../../lib';
 
 export const asBytes = <T extends WxtStorageItem<Uint8Array | null, {}>>(
@@ -31,5 +31,14 @@ export const asJson = <
   setValue: async (value: Uint8Array) => {
     const data = JSON.stringify(value) as unknown as K;
     return item.setValue(data);
+  },
+  watch: (callback: WatchCallback<K>) => {
+    return item.watch((newValue, oldValue) => {
+      if (!newValue) return;
+      callback(
+        JSON.parse(newValue as unknown as string) as K,
+        JSON.parse(oldValue as unknown as string) as K,
+      );
+    });
   },
 });
