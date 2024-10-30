@@ -25,7 +25,7 @@ export const KeysList: Component<KeysListProps> = (props) => {
               </code>
               <div class="text-[10px] text-gray-500 flex justify-between">
                 <a
-                  title={mpd ? 'Manifest URL' : 'Page URL'}
+                  title={mpd || url}
                   target="_blank"
                   href={url}
                   class="w-fit truncate hover:underline hover:text-blue-500"
