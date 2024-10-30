@@ -7,13 +7,11 @@ declare global {
 export default defineUnlistedScript(() => {
   window.MPD_LIST = new Map();
 
-  const parsePssh = async (response: Response) => {
-    const clone = response.clone();
-    const text = await clone.text();
+  const parsePssh = (text: string, url: string) => {
     const isXml = text.startsWith('<?xml') || text.startsWith('<MPD');
     if (!isXml) return;
     const parser = new DOMParser();
-    const mpd = parser.parseFromString(text, 'application/xml');
+    const mpd = parser.parseFromString(text, 'text/xml');
     const contentProtectionList = mpd.querySelectorAll(
       'ContentProtection[schemeIdUri="urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"]',
     );
@@ -23,7 +21,7 @@ export default defineUnlistedScript(() => {
         if (child.nodeName === 'cenc:pssh') {
           const pssh = child.textContent;
           if (!pssh) continue;
-          window.MPD_LIST.set(pssh, response.url);
+          window.MPD_LIST.set(pssh, url);
         }
       }
     }
@@ -48,7 +46,12 @@ export default defineUnlistedScript(() => {
 
         // Detect manifest URL and parse PSSH from response
         const isManifest = url.pathname.endsWith('.mpd');
-        if (isManifest) parsePssh(response);
+        if (isManifest) {
+          response
+            .clone()
+            .text()
+            .then((text) => parsePssh(text, response.url));
+        }
 
         return response;
       };
@@ -68,7 +71,27 @@ export default defineUnlistedScript(() => {
     }
   };
 
+  const patchXmlHttpRequest = () => {
+    class PatchedXHR extends XMLHttpRequest {
+      constructor() {
+        super();
+        this.addEventListener('load', this.#handleResponse.bind(this));
+      }
+
+      #handleResponse() {
+        console.log(`[azot] XMLHttpRequest ${this.responseURL}`);
+        const url = new URL(this.responseURL);
+        const isManifest = url.pathname.endsWith('.mpd');
+        if (isManifest) {
+          parsePssh(this.responseText, this.responseURL);
+        }
+      }
+    }
+    window.XMLHttpRequest = PatchedXHR;
+  };
+
   patchFetch();
+  patchXmlHttpRequest();
 
   console.log('[azot] Fetch interception added');
 });
