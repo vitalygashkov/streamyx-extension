@@ -42,7 +42,6 @@ export default defineUnlistedScript(() => {
           url = new URL(request.url);
         }
         const response = await originalFetch(resource, options);
-        console.log(`[azot] Fetched ${response.url}`);
 
         // Detect manifest URL and parse PSSH from response
         const isManifest = url.pathname.endsWith('.mpd');
@@ -79,7 +78,6 @@ export default defineUnlistedScript(() => {
       }
 
       #handleResponse() {
-        console.log(`[azot] XMLHttpRequest ${this.responseURL}`);
         const url = new URL(this.responseURL);
         const isManifest = url.pathname.endsWith('.mpd');
         if (isManifest) {
