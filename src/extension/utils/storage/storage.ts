@@ -6,6 +6,7 @@ export type KeyInfo = {
   id: string;
   value: string;
   url: string;
+  mpd: string;
   pssh: string;
   createdAt: number;
 };
