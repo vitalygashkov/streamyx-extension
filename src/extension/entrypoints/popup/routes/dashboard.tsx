@@ -1,3 +1,4 @@
+import { A } from '@solidjs/router';
 import { appStorage, KeyInfo } from '@/utils/storage';
 import { Cell } from '../components/cell';
 import {
@@ -12,11 +13,12 @@ import { Header } from '../components/header';
 import { CellImportClient } from '../components/cell-import-client';
 import { NoKeys } from '../components/no-keys';
 import { KeysList } from '../components/keys-list';
+import { SectionFooter } from '../components/section';
 
 export const Dashboard = () => {
   const [clients] = useClients();
   const [, setInterceptionEnabled] = useInterceptionEnabled();
-  const [, setSpoofingEnabled] = useSpoofingEnabled();
+  const [spoofingEnabled, setSpoofingEnabled] = useSpoofingEnabled();
   const [keys, setKeys] = createSignal<KeyInfo[]>([]);
   const [activeClient, setActiveClient] = useActiveClient();
 
@@ -45,11 +47,25 @@ export const Dashboard = () => {
         <Show when={!activeClient() && clients().length === 0}>
           <CellImportClient />
         </Show>
-        <Show when={activeClient()}>
-          <Cell class="capitalize" component="label" subtitle="Active">
-            {`${activeClient()?.info.get('company_name')} ${activeClient()?.info.get('model_name')}`}
-          </Cell>
-        </Show>
+        <div>
+          <Show when={activeClient()}>
+            <Cell class="capitalize" component="label" subtitle="Active">
+              {`${activeClient()?.info.get('company_name')} ${activeClient()?.info.get('model_name')}`}
+            </Cell>
+          </Show>
+          <Show when={!spoofingEnabled()}>
+            <SectionFooter>
+              Interception and Spoofing must be enabled in{' '}
+              <A
+                href="/settings"
+                class="w-fit truncate text-blue-600 hover:underline hover:text-blue-500"
+              >
+                Settings
+              </A>{' '}
+              to obtain keys
+            </SectionFooter>
+          </Show>
+        </div>
 
         <KeysList
           keys={keys}
