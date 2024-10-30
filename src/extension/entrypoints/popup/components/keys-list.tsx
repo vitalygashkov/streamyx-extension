@@ -11,24 +11,29 @@ type KeysListProps = {
   footer?: string;
 };
 
+const shorten = (url?: string) => url?.replace('https://', '');
+
 export const KeysList: Component<KeysListProps> = (props) => {
   return (
     <Show when={props.keys().length > 0}>
       <List>
         <Section header={props.header} footer={props.footer}>
-          {props.keys().map(({ id, value, url, createdAt }) => (
+          {props.keys().map(({ id, value, url, mpd, createdAt }) => (
             <Cell class="group" onClick={() => copyKey({ id, value })}>
-              <code class="text-[13px] truncate w-full">{id}</code>
+              <code title="Key ID" class="text-[13px] truncate w-full">
+                {id}
+              </code>
               <div class="text-[10px] text-gray-500 flex justify-between">
                 <a
+                  title={mpd ? 'Manifest URL' : 'Page URL'}
                   target="_blank"
                   href={url}
                   class="w-fit truncate hover:underline hover:text-blue-500"
                 >
-                  {url?.replace('https://', '')}
+                  {shorten(mpd || url)}
                 </a>
                 {/* Date without seconds */}
-                <div class="">
+                <div>
                   {new Date(createdAt)
                     .toLocaleString()
                     .replace(',', '')

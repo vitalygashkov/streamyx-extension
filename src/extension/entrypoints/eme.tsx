@@ -140,6 +140,7 @@ export default defineUnlistedScript(() => {
         initDataType: session.initDataType,
         message,
         messageBase64,
+        mpd: window.MPD_LIST.get(session.initData!),
       });
 
       if (result) {
@@ -275,69 +276,5 @@ export default defineUnlistedScript(() => {
 
   patchEncryptedMediaExtensions();
 
-  console.log('[azot] Injection finished');
+  console.log('[azot] EME interception added');
 });
-
-const patchFetch = () => {
-  if (typeof fetch === 'function') {
-    const originalFetch = fetch;
-    const cachedFetch = async function fetch(
-      resource: URL | RequestInfo,
-      options?: RequestInit,
-    ) {
-      const isPOST = options?.method === 'POST';
-      if (!isPOST) return originalFetch(resource, options);
-      let url: string;
-      if (typeof resource === 'string' && !options) {
-        url = resource;
-      } else {
-        const request = new Request(resource, options);
-        url = request.url;
-      }
-      const response = await originalFetch(resource, options);
-      console.log(`[azot] Fetched ${response.url}`);
-      if (url.includes('license')) {
-        // const clone = response.clone();
-        // const text = await clone.text();
-        // console.log(text);
-      }
-      return response;
-    };
-    Object.assign(cachedFetch, originalFetch);
-    try {
-      // eslint-disable-next-line no-global-assign
-      fetch = cachedFetch;
-    } catch (error1) {
-      try {
-        globalThis.fetch = cachedFetch;
-      } catch (error2) {
-        console.warn(
-          'Azot was unable to patch the fetch() function in this environment. ',
-        );
-      }
-    }
-  }
-};
-
-const cloneCurrentPageIntoFrame = () => {
-  const FRAME_ID = 'azot';
-  console.log('[azot] Cloning page into iframe...');
-  const added = document.body.querySelector(`#${FRAME_ID}`);
-  if (added) return;
-  // if (added) added.remove();
-  const originalHtmlContent = document.documentElement.innerHTML;
-  const frame = document.createElement('iframe');
-  if (frame.contentWindow) Object.assign(window, frame.contentWindow);
-  frame.setAttribute('id', FRAME_ID);
-  frame.setAttribute('style', 'display: none;');
-  document.body.appendChild(frame);
-  let frameDocument = ('document' in frame
-    ? frame.document
-    : frame) as unknown as Document;
-  if (frame.contentDocument) frameDocument = frame.contentDocument;
-  else if (frame.contentWindow) frameDocument = frame.contentWindow.document;
-  frameDocument.open();
-  frameDocument.writeln(originalHtmlContent);
-  frameDocument.close();
-  return frame;
-};

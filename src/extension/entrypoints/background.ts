@@ -122,6 +122,7 @@ export default defineBackground({
                     id,
                     value,
                     url: message.url,
+                    mpd: message.mpd,
                     pssh: message.initData,
                     createdAt: new Date().getTime(),
                   };

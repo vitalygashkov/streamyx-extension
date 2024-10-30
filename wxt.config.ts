@@ -10,7 +10,7 @@ export default defineConfig({
     permissions: ['storage', 'tabs', 'activeTab', 'clipboardWrite'],
     host_permissions: ['https://*/*'],
     web_accessible_resources: [
-      { resources: ['injected.js'], matches: ['<all_urls>'] },
+      { resources: ['eme.js', 'network.js'], matches: ['<all_urls>'] },
     ],
   },
   runner: {

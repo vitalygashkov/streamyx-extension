@@ -23,8 +23,9 @@ export default defineContentScript({
     if (enabled) console.log(`[azot] Injecting...`);
     else return console.log(`[azot] Interception disabled`);
 
-    // Injecting script into current page
-    inject('injected.js');
+    // Injecting scripts into current page
+    inject('eme.js');
+    inject('network.js');
 
     // Listen for event from injected script
     window.addEventListener(
