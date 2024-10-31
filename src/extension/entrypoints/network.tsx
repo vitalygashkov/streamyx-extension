@@ -88,8 +88,103 @@ export default defineUnlistedScript(() => {
     window.XMLHttpRequest = PatchedXHR;
   };
 
+  const patchBlobFetch = () => {
+    window.addEventListener('message', (event) => {
+      if (
+        event.data &&
+        event.data.jsonrpc === '2.0' &&
+        event.data.method === 'intercepted_response'
+      ) {
+        const { url, text, headers } = event.data.params;
+        parsePssh(text, url);
+      }
+    });
+
+    // Monitor for worker creation
+    const originalWorker = window.Worker;
+    window.Worker = function (scriptUrl, options) {
+      const worker = new originalWorker(scriptUrl, options);
+
+      worker.addEventListener('message', (event) => {
+        if (
+          event.data &&
+          event.data.jsonrpc === '2.0' &&
+          event.data.method === 'intercepted_response'
+        ) {
+          const { url, text, headers } = event.data.params;
+          parsePssh(text, url);
+        }
+      });
+
+      return worker;
+    };
+
+    // Store original blob URL creation
+    const originalCreateObjectURL = URL.createObjectURL;
+    URL.createObjectURL = function (blob) {
+      if (
+        blob instanceof Blob &&
+        (blob.type.includes('javascript') ||
+          blob.type.includes('application/x-javascript') ||
+          blob.type === 'text/javascript' ||
+          blob.type === '')
+      ) {
+        // Convert blob to text synchronously
+        const xhr = new XMLHttpRequest();
+        const url = originalCreateObjectURL(blob);
+        xhr.overrideMimeType('text/plain; charset=x-user-defined');
+        xhr.open('GET', url, false);
+        xhr.send();
+        const blobDataBuffer = Uint8Array.from(xhr.response, (c) =>
+          c.charCodeAt(0),
+        );
+        const sourceCode = new TextDecoder().decode(blobDataBuffer);
+        const injectionCode = `
+          const originalFetch = fetch;
+          fetch = async function(...args) {
+            const response = await originalFetch.apply(this, args);
+
+            const size = response.headers.get('content-length');
+            const MAX_SIZE = 1024 * 1024 * 1; // 1 MB
+            const isSizeOk = Number(size) < MAX_SIZE;
+            if (size && !isSizeOk) return response;
+
+            const type = response.headers.get('content-type');
+            const isTypeOk = type?.includes('xml') || type?.includes('dash');
+            if (!isTypeOk) return response;
+
+            const clone = response.clone();
+            clone.text().then(text => {
+              const message = {
+                jsonrpc: '2.0',
+                method: 'intercepted_response',
+                params: {
+                  url: response.url,
+                  text,
+                  headers: Object.fromEntries(response.headers.entries())
+                },
+                id: Date.now()
+              };
+              if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+                self.postMessage(message);
+              } else {
+                window.postMessage(message, '*');
+              }
+            });
+            return response;
+          };
+        `;
+        const modifiedCode = injectionCode + '\n' + sourceCode;
+        const modifiedBlob = new Blob([modifiedCode], { type: blob.type });
+        return originalCreateObjectURL.call(URL, modifiedBlob);
+      }
+      return originalCreateObjectURL.call(URL, blob);
+    };
+  };
+
   patchFetch();
   patchXmlHttpRequest();
+  patchBlobFetch();
 
-  console.log('[azot] Fetch interception added');
+  console.log('[azot] Request interception added');
 });
