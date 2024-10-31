@@ -35,12 +35,25 @@ npm install azot
 npm install -g azot
 ```
 
-### Browser extension
+### Chrome extension
 
 **Developer Mode** needs to be enabled in `chrome://extensions/` page
 
 1. Download archive from [latest release](https://github.com/vitalygashkov/azot/releases/latest)
-2. Drag and drop downloaded zip file to `chrome://extensions/` page
+2. Go to `chrome://extensions/` page
+3. Ensure Developer Mode enabled and then drag and drop downloaded zip file to this page
+
+[Read Google's guide](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked)
+
+### Firefox extension
+
+1. Download archive from [latest release](https://github.com/vitalygashkov/azot/releases/latest)
+2. Go to `about:debugging#/runtime/this-firefox` page
+3. Click `Load Temporary Add-on` button and choose downloaded zip file
+
+> Temporary add-on is not persistent and will be removed after browser restart
+
+[Read Mozilla's guide](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing)
 
 ## Usage
 

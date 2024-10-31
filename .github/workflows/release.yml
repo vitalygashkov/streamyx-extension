@@ -38,6 +38,7 @@ jobs:
           generate_release_notes: true
           files: |
             ./.output/${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-chrome.zip
+            ./.output/${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-firefox.zip
 
 permissions:
   contents: write
