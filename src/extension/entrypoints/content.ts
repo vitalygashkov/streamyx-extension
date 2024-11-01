@@ -22,10 +22,10 @@ export default defineContentScript({
     const settings = await appStorage.settings.getValue();
 
     // Injecting scripts into current page
+    inject('manifest.js');
     if (settings?.requestInterception) {
       console.log(`[azot] Injecting request interception...`);
       inject('network.js');
-      inject('manifest.js');
     }
     if (settings?.emeInterception) {
       console.log(`[azot] Injecting EME interception...`);

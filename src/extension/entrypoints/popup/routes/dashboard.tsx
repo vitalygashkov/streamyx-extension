@@ -14,14 +14,23 @@ import { CellImportClient } from '../components/cell-import-client';
 import { NoKeys } from '../components/no-keys';
 import { KeysList } from '../components/keys-list';
 import { SectionFooter } from '../components/section';
+import { appStorage } from '@/utils/storage';
 
 export const Dashboard = () => {
   const [settings] = useSettings();
   const [clients] = useClients();
   const [recentKeys] = useRecentKeys();
-  const [activeClient] = useActiveClient();
+  const [activeClient, setActiveClient] = useActiveClient();
 
   useSyncStateWithStorage();
+
+  createEffect(() => {
+    if (clients().length === 1) {
+      const client = clients()[0];
+      setActiveClient(client);
+      appStorage.clients.active.setValue(client);
+    }
+  });
 
   return (
     <Layout>
@@ -38,24 +47,23 @@ export const Dashboard = () => {
               {`${activeClient()?.info.get('company_name')} ${activeClient()?.info.get('model_name')}`}
             </Cell>
           </Show>
-          <Show when={!settings.spoofing}>
-            <SectionFooter>
-              Interception and Spoofing must be enabled in{' '}
+        </div>
+
+        <KeysList
+          keys={recentKeys}
+          header="Recent Keys"
+          footer={
+            <Show when={!settings.spoofing}>
+              Enable Spoofing in{' '}
               <A
                 href="/settings"
                 class="w-fit truncate text-blue-600 hover:underline hover:text-blue-500"
               >
                 Settings
               </A>{' '}
-              to obtain keys
-            </SectionFooter>
-          </Show>
-        </div>
-
-        <KeysList
-          keys={recentKeys}
-          header="Recent Keys"
-          footer="Only keys from the last intercept are shown here. Click on the key to copy it to the clipboard"
+              to obtain content decryption keys
+            </Show>
+          }
         />
 
         <Show when={recentKeys().length === 0}>
