@@ -1,30 +1,58 @@
-declare global {
-  interface Window {
-    MPD_LIST: Map<string, string>;
-  }
-}
-
 export default defineUnlistedScript(() => {
-  window.MPD_LIST = new Map();
+  const filterHead = (url: string, headers: Record<string, string>) => {
+    const MAX_SIZE = 1024 * 1024 * 1; // 1 MB
+    const size = headers['content-length'];
+    const isSizeOk = Number(size) < MAX_SIZE;
+    if (size && !isSizeOk) return false;
 
-  const parsePssh = (text: string, url: string) => {
-    const isXml = text.startsWith('<?xml') || text.startsWith('<MPD');
-    if (!isXml) return;
-    const parser = new DOMParser();
-    const mpd = parser.parseFromString(text, 'text/xml');
-    const contentProtectionList = mpd.querySelectorAll(
-      'ContentProtection[schemeIdUri="urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"]',
+    const type = headers['content-type'];
+    const isTypeOk =
+      type?.includes('xml') ||
+      type?.includes('dash') ||
+      type?.includes('octet-stream');
+    if (!isTypeOk) return false;
+
+    return true;
+  };
+
+  const filterData = (url: string, text: string) => {
+    const isManifest = text.startsWith('<?xml') || text.startsWith('<MPD');
+    return isManifest;
+  };
+
+  const postMessage = (
+    url: string,
+    headers: Record<string, string>,
+    text: string,
+  ) => {
+    const message = {
+      jsonrpc: '2.0',
+      method: 'response',
+      params: { url, text, headers },
+      id: Date.now(),
+    };
+    window.postMessage(message, '*');
+  };
+
+  const isResponseMessage = (event: MessageEvent) => {
+    return (
+      event.data &&
+      event.data.jsonrpc === '2.0' &&
+      event.data.method === 'response'
     );
-    for (const contentProtection of contentProtectionList) {
-      const children = Array.from(contentProtection.children);
-      for (const child of children) {
-        if (child.nodeName === 'cenc:pssh') {
-          const pssh = child.textContent;
-          if (!pssh) continue;
-          window.MPD_LIST.set(pssh, url);
-        }
+  };
+
+  const originalWorker = window.Worker;
+  // @ts-ignore
+  window.Worker = function (scriptUrl: string | URL, options: WorkerOptions) {
+    const worker = new originalWorker(scriptUrl, options);
+    worker.addEventListener('message', (event) => {
+      if (isResponseMessage(event)) {
+        const { url, headers, text } = event.data.params;
+        postMessage(url, headers, text);
       }
-    }
+    });
+    return worker;
   };
 
   const patchFetch = () => {
@@ -34,22 +62,16 @@ export default defineUnlistedScript(() => {
         resource: URL | RequestInfo,
         options?: RequestInit,
       ) {
-        let url: URL;
-        if (typeof resource === 'string' && !options) {
-          url = new URL(resource);
-        } else {
-          const request = new Request(resource, options);
-          url = new URL(request.url);
-        }
         const response = await originalFetch(resource, options);
 
-        // Detect manifest URL and parse PSSH from response
-        const isManifest = url.pathname.endsWith('.mpd');
-        if (isManifest) {
-          response
-            .clone()
-            .text()
-            .then((text) => parsePssh(text, response.url));
+        const clone = response.clone();
+        const url = clone.url;
+        const headers = Object.fromEntries(clone.headers.entries());
+        const hasHeadMatch = filterHead(url, headers);
+        if (hasHeadMatch) {
+          const text = await clone.text();
+          const hasDataMatch = filterData(url, text);
+          if (hasDataMatch) postMessage(url, headers, text);
         }
 
         return response;
@@ -78,10 +100,22 @@ export default defineUnlistedScript(() => {
       }
 
       #handleResponse() {
-        const url = new URL(this.responseURL);
-        const isManifest = url.pathname.endsWith('.mpd');
-        if (isManifest) {
-          parsePssh(this.responseText, this.responseURL);
+        const url = this.responseURL;
+        const headersString = this.getAllResponseHeaders();
+        const headersArray = headersString.trim().split(/[\r\n]+/);
+        const headers: Record<string, string> = {};
+        for (const line of headersArray) {
+          const parts = line.split(': ');
+          const header = parts.shift();
+          if (!header) continue;
+          const value = parts.join(': ');
+          headers[header] = value;
+        }
+        const hasHeadMatch = filterHead(url, headers);
+        if (hasHeadMatch && this.responseType === 'text') {
+          const text = this.response;
+          const hasDataMatch = filterData(url, text);
+          if (hasDataMatch) postMessage(url, headers, text);
         }
       }
     }
@@ -89,37 +123,6 @@ export default defineUnlistedScript(() => {
   };
 
   const patchBlobFetch = () => {
-    window.addEventListener('message', (event) => {
-      if (
-        event.data &&
-        event.data.jsonrpc === '2.0' &&
-        event.data.method === 'intercepted_response'
-      ) {
-        const { url, text, headers } = event.data.params;
-        parsePssh(text, url);
-      }
-    });
-
-    // Monitor for worker creation
-    const originalWorker = window.Worker;
-    window.Worker = function (scriptUrl, options) {
-      const worker = new originalWorker(scriptUrl, options);
-
-      worker.addEventListener('message', (event) => {
-        if (
-          event.data &&
-          event.data.jsonrpc === '2.0' &&
-          event.data.method === 'intercepted_response'
-        ) {
-          const { url, text, headers } = event.data.params;
-          parsePssh(text, url);
-        }
-      });
-
-      return worker;
-    };
-
-    // Store original blob URL creation
     const originalCreateObjectURL = URL.createObjectURL;
     URL.createObjectURL = function (blob) {
       if (
@@ -135,7 +138,7 @@ export default defineUnlistedScript(() => {
         xhr.overrideMimeType('text/plain; charset=x-user-defined');
         xhr.open('GET', url, false);
         xhr.send();
-        const blobDataBuffer = Uint8Array.from(xhr.response, (c) =>
+        const blobDataBuffer = Uint8Array.from(xhr.response as string, (c) =>
           c.charCodeAt(0),
         );
         const sourceCode = new TextDecoder().decode(blobDataBuffer);
@@ -150,14 +153,14 @@ export default defineUnlistedScript(() => {
             if (size && !isSizeOk) return response;
 
             const type = response.headers.get('content-type');
-            const isTypeOk = type?.includes('xml') || type?.includes('dash');
+            const isTypeOk = type?.includes('xml') || type?.includes('dash') || type?.includes('octet-stream');
             if (!isTypeOk) return response;
 
             const clone = response.clone();
             clone.text().then(text => {
               const message = {
                 jsonrpc: '2.0',
-                method: 'intercepted_response',
+                method: 'response',
                 params: {
                   url: response.url,
                   text,
@@ -186,5 +189,5 @@ export default defineUnlistedScript(() => {
   patchXmlHttpRequest();
   patchBlobFetch();
 
-  console.log('[azot] Request interception added');
+  console.log('[azot] Response interception added');
 });
