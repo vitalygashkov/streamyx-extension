@@ -32,6 +32,7 @@ const parseBase64 = (data: string) =>
 export const fromBase64 = (data: string) => ({
   toBuffer: () => parseBase64(data),
   toText: () => decode(parseBase64(data)),
+  toHex: () => fromBuffer(fromBase64(data).toBuffer()).toHex(),
 });
 
 export const fromBuffer = (data: Uint8Array) => ({

@@ -4,22 +4,25 @@ import { List } from '../components/list';
 import { Section } from '../components/section';
 import { Cell } from '../components/cell';
 import { Switch } from '../components/switch';
-import { useInterceptionEnabled, useSpoofingEnabled } from '../utils/state';
+import { useSettings } from '../utils/state';
 import { appStorage } from '@/utils/storage';
 
 export const Settings = () => {
-  const [interceptionEnabled, setInterceptionEnabled] =
-    useInterceptionEnabled();
-  const [spoofingEnabled, setSpoofingEnabled] = useSpoofingEnabled();
+  const [settings, setSettings] = useSettings();
 
-  const switchInterception = (checked: boolean) => {
-    setInterceptionEnabled(checked);
-    appStorage.interceptionEnabled.setValue(checked);
+  const switchEmeInterception = (checked: boolean) => {
+    setSettings({ emeInterception: checked });
+    appStorage.settings.setValue(settings);
   };
 
   const switchSpoofing = (checked: boolean) => {
-    setSpoofingEnabled(checked);
-    appStorage.spoofingEnabled.setValue(checked);
+    setSettings({ spoofing: checked });
+    appStorage.settings.setValue(settings);
+  };
+
+  const switchRequestInterception = (checked: boolean) => {
+    setSettings({ requestInterception: checked });
+    appStorage.settings.setValue(settings);
   };
 
   return (
@@ -31,35 +34,51 @@ export const Settings = () => {
           footer="When enabled, it will not be possible to play protected media."
         >
           <Cell
-            title="You can view logs from an EME session in Developer Tools under the Console tab "
-            subtitle="Script injection with EME logging"
+            title="You can view logs from an Encrypted Media Extensions (EME) session in Developer Tools under the Console tab"
+            subtitle="Logging EME events and calls"
             component="label"
             after={
               <Switch
-                checked={interceptionEnabled()}
+                checked={settings.emeInterception}
                 onChange={(e) => {
                   const checked = e.target.checked;
                   if (!checked) switchSpoofing(false);
-                  switchInterception(checked);
+                  switchEmeInterception(checked);
                 }}
               />
             }
           >
-            Interception
+            EME interception
           </Cell>
           <Cell
-            subtitle="Send our own license request"
+            subtitle="Inject our own license request"
             component="label"
-            disabled={!interceptionEnabled()}
+            disabled={!settings.emeInterception}
             after={
               <Switch
-                checked={spoofingEnabled()}
+                checked={settings.spoofing}
                 onChange={(e) => switchSpoofing(e.target.checked)}
               />
             }
           >
             Spoofing
           </Cell>
+        </Section>
+        <Section header="Network" footer="Experimental feature.">
+          {[
+            <Cell
+              subtitle="Streaming manifest URL detection"
+              component="label"
+              after={
+                <Switch
+                  checked={settings.requestInterception}
+                  onChange={(e) => switchRequestInterception(e.target.checked)}
+                />
+              }
+            >
+              Request interception
+            </Cell>,
+          ]}
         </Section>
       </List>
     </Layout>

@@ -11,17 +11,19 @@ export type KeyInfo = {
   createdAt: number;
 };
 
-export const appStorage = {
-  interceptionEnabled: storage.defineItem<boolean>(
-    'local:interception-enabled',
-  ),
-  spoofingEnabled: storage.defineItem<boolean>('local:spoofing-enabled'),
+export type Settings = {
+  spoofing: boolean;
+  emeInterception: boolean;
+  requestInterception: boolean;
+};
 
-  keys: asJson(storage.defineItem<KeyInfo[]>('local:keys')),
+export const appStorage = {
+  settings: asJson(storage.defineItem<Settings>('local:settings')),
+
+  recentKeys: asJson(storage.defineItem<KeyInfo[]>('local:recent-keys')),
   allKeys: {
     raw: asJson(storage.defineItem<KeyInfo[]>('local:all-keys')),
     setValue: async (keys: KeyInfo[]) => {
-      appStorage.allKeys.raw.watch((keys) => {});
       await appStorage.allKeys.raw.setValue(keys);
     },
     getValue: async () => {
@@ -29,7 +31,7 @@ export const appStorage = {
     },
     clear: async () => {
       await appStorage.allKeys.raw.setValue([]);
-      await appStorage.keys.setValue([]);
+      await appStorage.recentKeys.setValue([]);
     },
     add: async (...newKeys: KeyInfo[]) => {
       const keys = (await appStorage.allKeys.getValue()) || [];

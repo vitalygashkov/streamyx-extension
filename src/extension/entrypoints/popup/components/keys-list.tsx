@@ -1,4 +1,4 @@
-import { Accessor, Component } from 'solid-js';
+import { Accessor, Component, JSX } from 'solid-js';
 import { Cell } from './cell';
 import { KeyInfo } from '@/utils/storage';
 import { copyKey } from '../utils/key';
@@ -7,8 +7,8 @@ import { Section } from './section';
 
 type KeysListProps = {
   keys: Accessor<KeyInfo[]>;
-  header?: string;
-  footer?: string;
+  header?: JSX.Element;
+  footer?: JSX.Element;
 };
 
 const shorten = (url?: string) => url?.replace('https://', '');
@@ -20,7 +20,10 @@ export const KeysList: Component<KeysListProps> = (props) => {
         <Section header={props.header} footer={props.footer}>
           {props.keys().map(({ id, value, url, mpd, createdAt }) => (
             <Cell class="group" onClick={() => copyKey({ id, value })}>
-              <code title="Key ID" class="text-[13px] truncate w-full">
+              <code
+                title="Key ID (click to copy)"
+                class="text-[13px] truncate w-full"
+              >
                 {id}
               </code>
               <div class="text-[10px] text-gray-500 flex justify-between">
