@@ -13,7 +13,6 @@ import { Header } from '../components/header';
 import { CellImportClient } from '../components/cell-import-client';
 import { NoKeys } from '../components/no-keys';
 import { KeysList } from '../components/keys-list';
-import { SectionFooter } from '../components/section';
 import { appStorage } from '@/utils/storage';
 
 export const Dashboard = () => {
