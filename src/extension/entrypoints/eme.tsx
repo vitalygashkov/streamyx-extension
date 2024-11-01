@@ -53,6 +53,20 @@ export default defineUnlistedScript(() => {
       console.log(`Initialization data (PSSH): ${session.initData}`);
       console.log(`Keys count: ${session.keyStatuses.size}`);
       console.groupEnd();
+
+      const keyStatuses: Record<string, string> = {};
+      for (const [id, status] of session.keyStatuses.entries()) {
+        keyStatuses[base64.stringify(id)] = status;
+      }
+
+      await send({
+        sessionId: session.sessionId,
+        action: 'keystatuseschange',
+        initData: session.initData,
+        initDataType: session.initDataType,
+        mpd: window.MPD_LIST.get(session.initData!),
+        keyStatuses,
+      });
       return;
     };
 
@@ -150,6 +164,11 @@ export default defineUnlistedScript(() => {
         );
         for (const [id, value] of keys) console.log(`${id}:${value}`);
         console.groupEnd();
+      } else {
+        setTimeout(() => {
+          if (session.keyStatuses.size === 0) return;
+          onKeyStatusesChange(session);
+        }, 1000);
       }
       return;
     };
@@ -261,6 +280,13 @@ export default defineUnlistedScript(() => {
       call: async (_target, _this, [event]) => {
         const modifiedEvent = await onMessage(event);
         return _target?.apply(_this, [modifiedEvent || event]);
+      },
+    });
+
+    interceptProperty(MediaKeySession.prototype, 'onkeystatuseschange', {
+      call: async (_target, _this, [event]) => {
+        onKeyStatusesChange(event.target as MediaKeySession);
+        return _target?.apply(_this, [event]);
       },
     });
 

@@ -1,5 +1,5 @@
 import { appStorage } from '@/utils/storage';
-import { Client, fromBuffer } from '@azot/lib';
+import { Client, fromBase64, fromBuffer } from '@azot/lib';
 import { getMessageType } from '@azot/lib/message';
 
 export default defineBackground({
@@ -37,8 +37,29 @@ export default defineBackground({
       (async () => {
         console.log('[azot] Received message', message);
 
-        const spoofingEnabled = await appStorage.spoofingEnabled.getValue();
-        if (!spoofingEnabled) {
+        const settings = await appStorage.settings.getValue();
+
+        if (
+          settings?.emeInterception &&
+          message.action === 'keystatuseschange'
+        ) {
+          const keys = Object.entries(message.keyStatuses).map(
+            ([id, status]: any) => ({
+              id: fromBase64(id).toHex(),
+              value: status,
+              url: message.url,
+              mpd: message.mpd,
+              pssh: message.initData,
+              createdAt: new Date().getTime(),
+            }),
+          );
+          appStorage.recentKeys.setValue(keys);
+          appStorage.allKeys.add(...keys);
+          sendResponse();
+          return;
+        }
+
+        if (!settings?.spoofing) {
           console.log('[azot] Spoofing disabled, skipping message...');
           sendResponse();
           return;
@@ -129,7 +150,7 @@ export default defineBackground({
                 };
                 const results = keys.map((key) => toKey(key));
                 console.log('[azot] Received keys', results);
-                appStorage.keys.setValue(results);
+                appStorage.recentKeys.setValue(results);
                 appStorage.allKeys.add(...results);
                 sendResponse({ keys: results });
               },

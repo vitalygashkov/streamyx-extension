@@ -16,7 +16,7 @@ export const Keys = () => {
 
   const clearKeys = async () => {
     await appStorage.allKeys.clear();
-    await appStorage.keys.setValue([]);
+    await appStorage.recentKeys.setValue([]);
     setKeys([]);
   };
 

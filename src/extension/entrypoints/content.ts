@@ -19,14 +19,18 @@ export default defineContentScript({
   allFrames: true,
   async main() {
     // Checking if interception enabled
-    const enabled = await appStorage.interceptionEnabled.getValue();
-    if (enabled) console.log(`[azot] Injecting...`);
-    else return console.log(`[azot] Interception disabled`);
+    const settings = await appStorage.settings.getValue();
 
     // Injecting scripts into current page
-    inject('network.js');
-    inject('manifest.js');
-    inject('eme.js');
+    if (settings?.requestInterception) {
+      console.log(`[azot] Injecting request interception...`);
+      inject('network.js');
+      inject('manifest.js');
+    }
+    if (settings?.emeInterception) {
+      console.log(`[azot] Injecting EME interception...`);
+      inject('eme.js');
+    }
 
     // Listen for event from injected script
     window.addEventListener(

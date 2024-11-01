@@ -14,11 +14,6 @@ export const Clients = () => {
   const [activeClient, setActiveClient] = useActiveClient();
   const [clients, setClients] = useClients();
 
-  onMount(async () => {
-    const clients = await appStorage.clients.getValue();
-    setClients(clients);
-  });
-
   const setActive = async (client: Client) => {
     setActiveClient(client);
     await appStorage.clients.active.setValue(client);

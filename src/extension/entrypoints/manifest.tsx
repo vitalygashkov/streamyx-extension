@@ -27,7 +27,6 @@ export default defineUnlistedScript(() => {
 
   window.addEventListener('message', (event) => {
     const isResponse = event.data.method === 'response';
-    console.log('[azot] got message', event.data);
     if (!isResponse) return;
     const { url, headers, text } = event.data.params;
     parsePssh(text, url);
